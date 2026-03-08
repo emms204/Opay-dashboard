@@ -42,6 +42,7 @@ import {
 import { BrandLogos } from './components/BrandLogos';
 import { ChartTooltip } from './components/ChartTooltip';
 import { DrillDownPanel } from './components/DrillDownPanel';
+import { PageOverview } from './components/PageOverview';
 import './App.css';
 
 const COLORS = {
@@ -128,6 +129,7 @@ export default function App() {
   const [programSortKey, setProgramSortKey] = useState('totalTVR');
   const [programSortAsc, setProgramSortAsc] = useState(false);
   const [selectedAudienceChannel, setSelectedAudienceChannel] = useState('cnn');
+  const [reportNotesEditMode, setReportNotesEditMode] = useState(false);
   const [reportNotes, setReportNotes] = useState(() => {
     try {
       return localStorage.getItem(REPORT_NOTES_KEY) ?? '';
@@ -311,16 +313,33 @@ export default function App() {
           return (
             <div className="view-content-stack overview-two-col">
               <h3 className="chart-title overview-page-title">Campaign overview — Dec/Jan vs February</h3>
+              <PageOverview>
+                Shows total reach, spots, frequency, GRPs/TVR, and impacts for Terrestrial and Cable. Compares Dec/Jan to February so you can see growth between periods.
+              </PageOverview>
               <div className="overview-notes-section">
                 <label htmlFor="report-notes" className="overview-notes-label">Administrator notes / comments</label>
+                {!reportNotesEditMode && (
+                  <p className="overview-notes-hint">Double-click the box below to edit.</p>
+                )}
                 <textarea
                   id="report-notes"
-                  className="overview-notes-input"
+                  className={`overview-notes-input ${reportNotesEditMode ? 'overview-notes-input--editing' : ''}`}
                   placeholder="Add comments or notes about this report…"
                   value={reportNotes}
                   onChange={(e) => setReportNotes(e.target.value)}
+                  onDoubleClick={() => setReportNotesEditMode(true)}
+                  readOnly={!reportNotesEditMode}
                   rows={4}
                 />
+                {reportNotesEditMode && (
+                  <button
+                    type="button"
+                    className="overview-notes-save"
+                    onClick={() => setReportNotesEditMode(false)}
+                  >
+                    Save
+                  </button>
+                )}
               </div>
               <div className="overview-cards">
                 <div className="overview-card overview-card--terrestrial">
@@ -411,6 +430,9 @@ export default function App() {
 
         {view === 'reach' && (
           <>
+            <PageOverview>
+              Compares household reach and key metrics between Cable (DStv + GOtv) and Terrestrial (Funita) for the selected period. Use the period selector above to switch between Dec/Jan and February.
+            </PageOverview>
             <div className="chart-large">
               <h3 className="chart-title">Cable vs Terrestrial — Households reached (M)</h3>
               <div className="chart-inner">
@@ -497,6 +519,9 @@ export default function App() {
 
         {view === 'growth' && (
           <div className="view-content-stack">
+            <PageOverview>
+              Plots household reach and spot count across Dec/Jan and February on one chart so you can see trends at a glance. Both periods are always shown—no period selector needed.
+            </PageOverview>
             <div className="chart-large">
               <h3 className="chart-title">Household reach over time (M)</h3>
               <div className="chart-inner">
@@ -614,6 +639,9 @@ export default function App() {
 
         {view === 'dstv-gotv' && (
           <>
+            <PageOverview>
+              Breaks out Cable into DStv and GOtv: reach, TVR, impacts, and frequency for the selected period. Use the period selector to switch between Dec/Jan and February.
+            </PageOverview>
             <div className="chart-large">
               <h3 className="chart-title">DStv vs GOtv — {periodLabel}</h3>
               <div className="chart-inner">
@@ -698,6 +726,9 @@ export default function App() {
 
         {view === 'top-channels' && (
           <>
+            <PageOverview>
+              Ranks channels by TVR for Terrestrial and Cable. Shows top 5 share (pie) and top 10 by TVR (bar). Use the period selector to change between Dec/Jan and February.
+            </PageOverview>
             <div className="chart-large">
               <h3 className="chart-title">Top channels by TVR — Terrestrial (Funita)</h3>
               <div className="chart-inner">
@@ -807,6 +838,9 @@ export default function App() {
           const LINE_COLORS = [COLORS.terrestrial, COLORS.terrestrialAlt, COLORS.orange, COLORS.purple, COLORS.gotv];
           return (
             <div className="view-content-stack audience-demographics-view">
+              <PageOverview>
+                First section: average gender and age across channels, plus audience reach by time of day (all channels). Second section: pick a channel from the dropdown to see its own gender, age, and time-of-day pattern.
+              </PageOverview>
               <p className="chart-subtitle">Source: Funita — Your Target Customers spend time watching (Feb 2026).</p>
 
               {/* Audience Overview */}
@@ -926,6 +960,9 @@ export default function App() {
 
         {view === 'top-programs' && (
           <div className="view-content-stack" style={{ width: '100%' }}>
+            <PageOverview>
+              Terrestrial program-level performance: TVR, impacts, insertions, and frequency per program. Table is sortable by column. The heat map shows viewership by time of day. Use the period selector for Dec/Jan or February.
+            </PageOverview>
             <div className="chart-large">
               <h3 className="chart-title">Terrestrial program performance — {periodLabel}</h3>
               <div className="programs-table-wrap">

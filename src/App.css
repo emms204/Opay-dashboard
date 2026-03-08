@@ -464,6 +464,39 @@
   box-shadow: 0 0 0 3px rgba(45, 157, 90, 0.15);
 }
 
+.overview-notes-input[readonly] {
+  cursor: default;
+  background: var(--green-pale);
+}
+
+.overview-notes-input.overview-notes-input--editing {
+  background: var(--white);
+  cursor: text;
+}
+
+.overview-notes-hint {
+  margin: 0 0 0.35rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.overview-notes-save {
+  margin-top: 0.5rem;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--white);
+  background: var(--green-dark);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.overview-notes-save:hover {
+  background: var(--green-mid);
+}
+
 .overview-cards {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -692,6 +725,15 @@
   margin: 0 0 0.5rem;
   font-size: 0.8rem;
   color: var(--text-muted);
+}
+
+.page-overview {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--text-muted);
+  max-width: 72ch;
+  grid-column: 1 / -1; /* span full width when inside grid (e.g. reach, dstv-gotv, top-channels) */
 }
 
 /* ---- Top Programs table ---- */
