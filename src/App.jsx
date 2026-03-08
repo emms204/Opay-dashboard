@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   BarChart,
   Bar,
@@ -33,6 +33,11 @@ import {
   cnnGender,
   cnnAgeGroups,
   cnnAudienceFlowByHour,
+  audienceChannels,
+  audienceFlowMultiLine,
+  audienceAverageGender,
+  audienceAverageAgeGroups,
+  channelsWithFlow,
 } from './data/campaignData';
 import { BrandLogos } from './components/BrandLogos';
 import { ChartTooltip } from './components/ChartTooltip';
@@ -114,12 +119,28 @@ const OVERVIEW_ICONS = {
   ),
 };
 
+const REPORT_NOTES_KEY = 'opay-dashboard-report-notes';
+
 export default function App() {
   const [view, setView] = useState('reach');
   const [period, setPeriod] = useState('feb');
   const [drillDown, setDrillDown] = useState(null);
   const [programSortKey, setProgramSortKey] = useState('totalTVR');
   const [programSortAsc, setProgramSortAsc] = useState(false);
+  const [selectedAudienceChannel, setSelectedAudienceChannel] = useState('cnn');
+  const [reportNotes, setReportNotes] = useState(() => {
+    try {
+      return localStorage.getItem(REPORT_NOTES_KEY) ?? '';
+    } catch {
+      return '';
+    }
+  });
+
+  useEffect(() => {
+    try {
+      if (reportNotes !== undefined) localStorage.setItem(REPORT_NOTES_KEY, reportNotes);
+    } catch (_) {}
+  }, [reportNotes]);
 
   const c = period === 'decjan' ? cable.decJan : cable.feb;
   const t = period === 'decjan' ? terrestrial.decJan : terrestrial.feb;
@@ -290,6 +311,17 @@ export default function App() {
           return (
             <div className="view-content-stack overview-two-col">
               <h3 className="chart-title overview-page-title">Campaign overview — Dec/Jan vs February</h3>
+              <div className="overview-notes-section">
+                <label htmlFor="report-notes" className="overview-notes-label">Administrator notes / comments</label>
+                <textarea
+                  id="report-notes"
+                  className="overview-notes-input"
+                  placeholder="Add comments or notes about this report…"
+                  value={reportNotes}
+                  onChange={(e) => setReportNotes(e.target.value)}
+                  rows={4}
+                />
+              </div>
               <div className="overview-cards">
                 <div className="overview-card overview-card--terrestrial">
                   <div className="overview-card-header">
@@ -770,55 +802,127 @@ export default function App() {
           </>
         )}
 
-        {view === 'audience-demographics' && (
-          <div className="view-content-stack" style={{ width: '100%' }}>
-            <p className="chart-subtitle">Source: Funita — Your Target Customers spend time watching CNN (16+ABC).</p>
-            <div className="chart-large">
-              <h3 className="chart-title">Audience reach by time of day (CNN, Mon–Fri)</h3>
-              <div className="chart-inner">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={cnnAudienceFlowByHour} margin={{ top: 12, right: 24, left: 12, bottom: 12 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
-                    <XAxis dataKey="timeSlot" />
-                    <YAxis domain={[0, 100]} />
-                    <Tooltip content={({ active, payload }) => active && payload?.[0] && (
-                      <ChartTooltip active payload={payload} label={payload[0].payload.timeSlot} rows={() => [{ label: 'Relative viewership', value: payload[0].value }]} />
-                    )} />
-                    <Line type="monotone" dataKey="viewership" name="Viewership level" stroke={COLORS.terrestrial} strokeWidth={2} dot={{ r: 3 }} />
-                  </LineChart>
-                </ResponsiveContainer>
+        {view === 'audience-demographics' && (() => {
+          const selectedChannel = audienceChannels.find((c) => c.id === selectedAudienceChannel) ?? audienceChannels[0];
+          const LINE_COLORS = [COLORS.terrestrial, COLORS.terrestrialAlt, COLORS.orange, COLORS.purple, COLORS.gotv];
+          return (
+            <div className="view-content-stack audience-demographics-view">
+              <p className="chart-subtitle">Source: Funita — Your Target Customers spend time watching (Feb 2026).</p>
+
+              {/* Audience Overview */}
+              <h3 className="chart-title section-heading">Audience overview (average across all channels)</h3>
+              <div className="demographics-grid">
+                <div className="chart-small">
+                  <h3 className="chart-title">Average gender breakdown</h3>
+                  <div className="chart-inner chart-inner-sm">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie data={audienceAverageGender} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius="80%" label={({ name, value }) => `${name} ${value}%`}>
+                          {audienceAverageGender.map((entry, i) => (<Cell key={i} fill={entry.fill} />))}
+                        </Pie>
+                        <Tooltip formatter={(value) => [value + '%', 'Share']} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+                <div className="chart-small">
+                  <h3 className="chart-title">Average age group distribution</h3>
+                  <div className="chart-inner chart-inner-sm">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={audienceAverageAgeGroups} layout="vertical" margin={{ left: 70, right: 24 }}>
+                        <XAxis type="number" domain={[0, 45]} />
+                        <YAxis type="category" dataKey="ageGroup" width={65} tick={{ fontSize: 11 }} />
+                        <Tooltip formatter={(value) => [value + '%', 'Share']} />
+                        <Bar dataKey="percentage" name="%" fill={COLORS.terrestrial} radius={[0, 4, 4, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div className="demographics-grid">
-              <div className="chart-small">
-                <h3 className="chart-title">Gender breakdown (CNN)</h3>
-                <div className="chart-inner chart-inner-sm">
+              <div className="chart-large">
+                <h3 className="chart-title">Audience reach by time of day (all channels, relative 0–100)</h3>
+                <div className="chart-inner">
                   <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie data={cnnGender} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius="80%" label={({ name, value }) => `${name} ${value}%`}>
-                        {cnnGender.map((entry, i) => (<Cell key={i} fill={entry.fill} />))}
-                      </Pie>
-                      <Tooltip formatter={(value) => [value + '%', 'Share']} />
-                    </PieChart>
+                    <LineChart data={audienceFlowMultiLine} margin={{ top: 12, right: 24, left: 12, bottom: 12 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+                      <XAxis dataKey="timeSlot" />
+                      <YAxis domain={[0, 100]} />
+                      <Tooltip />
+                      <Legend />
+                      {channelsWithFlow.map((ch, i) => (
+                        <Line key={ch.id} type="monotone" dataKey={ch.id} name={ch.name} stroke={LINE_COLORS[i % LINE_COLORS.length]} strokeWidth={2} dot={{ r: 2 }} />
+                      ))}
+                    </LineChart>
                   </ResponsiveContainer>
                 </div>
               </div>
-              <div className="chart-small">
-                <h3 className="chart-title">Age group distribution (CNN)</h3>
-                <div className="chart-inner chart-inner-sm">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={cnnAgeGroups} layout="vertical" margin={{ left: 70, right: 24 }}>
-                      <XAxis type="number" domain={[0, 40]} />
-                      <YAxis type="category" dataKey="ageGroup" width={65} tick={{ fontSize: 11 }} />
-                      <Tooltip formatter={(value) => [value + '%', 'Share']} />
-                      <Bar dataKey="percentage" name="%" fill={COLORS.terrestrial} radius={[0, 4, 4, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
+
+              {/* Channel filter + per-channel section */}
+              <h3 className="chart-title section-heading">View by channel</h3>
+              <div className="audience-channel-filter">
+                <label htmlFor="audience-channel-select" className="audience-channel-label">Channel</label>
+                <select
+                  id="audience-channel-select"
+                  className="granularity-select audience-channel-select"
+                  value={selectedAudienceChannel}
+                  onChange={(e) => setSelectedAudienceChannel(e.target.value)}
+                >
+                  {audienceChannels.map((ch) => (
+                    <option key={ch.id} value={ch.id}>{ch.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="demographics-grid">
+                <div className="chart-small">
+                  <h3 className="chart-title">Gender breakdown — {selectedChannel.name}</h3>
+                  <div className="chart-inner chart-inner-sm">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie data={selectedChannel.gender} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius="80%" label={({ name, value }) => `${name} ${value}%`}>
+                          {selectedChannel.gender.map((entry, i) => (<Cell key={i} fill={entry.fill} />))}
+                        </Pie>
+                        <Tooltip formatter={(value) => [value + '%', 'Share']} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+                <div className="chart-small">
+                  <h3 className="chart-title">Age group distribution — {selectedChannel.name}</h3>
+                  <div className="chart-inner chart-inner-sm">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={selectedChannel.ageGroups} layout="vertical" margin={{ left: 70, right: 24 }}>
+                        <XAxis type="number" domain={[0, 45]} />
+                        <YAxis type="category" dataKey="ageGroup" width={65} tick={{ fontSize: 11 }} />
+                        <Tooltip formatter={(value) => [value + '%', 'Share']} />
+                        <Bar dataKey="percentage" name="%" fill={COLORS.terrestrial} radius={[0, 4, 4, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
               </div>
+              {selectedChannel.audienceFlow ? (
+                <div className="chart-large">
+                  <h3 className="chart-title">Audience reach by time of day — {selectedChannel.name}</h3>
+                  <div className="chart-inner">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={selectedChannel.audienceFlow} margin={{ top: 12, right: 24, left: 12, bottom: 12 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+                        <XAxis dataKey="timeSlot" />
+                        <YAxis />
+                        <Tooltip content={({ active, payload }) => active && payload?.[0] && (
+                          <ChartTooltip active payload={payload} label={payload[0].payload.timeSlot} rows={() => [{ label: 'Relative viewership', value: payload[0].value }]} />
+                        )} />
+                        <Line type="monotone" dataKey="value" name="Viewership" stroke={COLORS.terrestrial} strokeWidth={2} dot={{ r: 3 }} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              ) : (
+                <p className="chart-subtitle">No numeric audience flow data for this channel in the report (ROK uses text descriptors).</p>
+              )}
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {view === 'top-programs' && (
           <div className="view-content-stack" style={{ width: '100%' }}>

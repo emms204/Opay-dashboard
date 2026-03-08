@@ -139,7 +139,7 @@ export const terrestrialProgramsDecJan = [
   { channel: "SuperSport Golf", program: "—", totalTVR: 51.3, impacts: 74848, insertions: 30, avgFrequency: 5.5 },
 ];
 
-/** CNN audience demographics (Funita: Your Target Customers spend time watching CNN) */
+/** CNN audience demographics (Funita: Your Target Customers spend time watching CNN) - kept for backward compat */
 export const cnnGender = [
   { name: "Male", value: 56, fill: "#0d5c2e" },
   { name: "Female", value: 44, fill: "#5a9bd4" },
@@ -154,7 +154,7 @@ export const cnnAgeGroups = [
   { ageGroup: "Age 65+", percentage: 2 },
 ];
 
-/** CNN audience flow 06:00–24:00 (Mon-Fri values from report; timeSlot = hour label) */
+/** CNN audience flow 06:00–24:00 (Mon-Fri values from report) */
 export const cnnAudienceFlowByHour = [
   { timeSlot: "06:00", viewership: 40 },
   { timeSlot: "07:00", viewership: 35 },
@@ -175,3 +175,266 @@ export const cnnAudienceFlowByHour = [
   { timeSlot: "22:00", viewership: 75 },
   { timeSlot: "23:00", viewership: 72 },
 ];
+
+/** All channels with audience demographics (Funita Feb report). Each has id, name, gender, ageGroups, audienceFlow (numeric by hour; null if text-only). */
+export const audienceChannels = [
+  {
+    id: "cnn",
+    name: "CNN",
+    gender: [
+      { name: "Male", value: 56, fill: "#0d5c2e" },
+      { name: "Female", value: 44, fill: "#5a9bd4" },
+    ],
+    ageGroups: [
+      { ageGroup: "Age 18-24", percentage: 4 },
+      { ageGroup: "Age 25-34", percentage: 23 },
+      { ageGroup: "Age 35-44", percentage: 33 },
+      { ageGroup: "Age 45-54", percentage: 26 },
+      { ageGroup: "Age 55-64", percentage: 12 },
+      { ageGroup: "Age 65+", percentage: 2 },
+    ],
+    audienceFlow: [
+      { timeSlot: "06:00", value: 40 },
+      { timeSlot: "07:00", value: 35 },
+      { timeSlot: "08:00", value: 40 },
+      { timeSlot: "09:00", value: 45 },
+      { timeSlot: "10:00", value: 50 },
+      { timeSlot: "11:00", value: 55 },
+      { timeSlot: "12:00", value: 58 },
+      { timeSlot: "13:00", value: 55 },
+      { timeSlot: "14:00", value: 52 },
+      { timeSlot: "15:00", value: 55 },
+      { timeSlot: "16:00", value: 52 },
+      { timeSlot: "17:00", value: 55 },
+      { timeSlot: "18:00", value: 60 },
+      { timeSlot: "19:00", value: 65 },
+      { timeSlot: "20:00", value: 58 },
+      { timeSlot: "21:00", value: 65 },
+      { timeSlot: "22:00", value: 75 },
+      { timeSlot: "23:00", value: 72 },
+    ],
+  },
+  {
+    id: "blitz",
+    name: "SuperSport Blitz",
+    gender: [
+      { name: "Male", value: 60, fill: "#0d5c2e" },
+      { name: "Female", value: 40, fill: "#5a9bd4" },
+    ],
+    ageGroups: [
+      { ageGroup: "Age 18-24", percentage: 20 },
+      { ageGroup: "Age 25-34", percentage: 37 },
+      { ageGroup: "Age 35-44", percentage: 27 },
+      { ageGroup: "Age 45-54", percentage: 14 },
+      { ageGroup: "Age 55-64", percentage: 2 },
+      { ageGroup: "Age 65+", percentage: 0 },
+    ],
+    audienceFlow: [
+      { timeSlot: "06:00", value: 45 },
+      { timeSlot: "07:00", value: 42 },
+      { timeSlot: "08:00", value: 40 },
+      { timeSlot: "09:00", value: 38 },
+      { timeSlot: "10:00", value: 35 },
+      { timeSlot: "11:00", value: 38 },
+      { timeSlot: "12:00", value: 35 },
+      { timeSlot: "13:00", value: 30 },
+      { timeSlot: "14:00", value: 28 },
+      { timeSlot: "15:00", value: 27 },
+      { timeSlot: "16:00", value: 28 },
+      { timeSlot: "17:00", value: 30 },
+      { timeSlot: "18:00", value: 33 },
+      { timeSlot: "19:00", value: 42 },
+      { timeSlot: "20:00", value: 38 },
+      { timeSlot: "21:00", value: 35 },
+      { timeSlot: "22:00", value: 65 },
+      { timeSlot: "23:00", value: 55 },
+    ],
+  },
+  {
+    id: "rok",
+    name: "ROK",
+    gender: [
+      { name: "Male", value: 42, fill: "#0d5c2e" },
+      { name: "Female", value: 58, fill: "#5a9bd4" },
+    ],
+    ageGroups: [
+      { ageGroup: "Age 18-24", percentage: 22 },
+      { ageGroup: "Age 25-34", percentage: 36 },
+      { ageGroup: "Age 35-44", percentage: 26 },
+      { ageGroup: "Age 45-54", percentage: 15 },
+      { ageGroup: "Age 55-64", percentage: 1 },
+      { ageGroup: "Age 65+", percentage: 0 },
+    ],
+    audienceFlow: null, // report has text-only (Baseline, Peak, etc.)
+  },
+  {
+    id: "trace",
+    name: "Trace Naija",
+    gender: [
+      { name: "Male", value: 43, fill: "#0d5c2e" },
+      { name: "Female", value: 57, fill: "#5a9bd4" },
+    ],
+    ageGroups: [
+      { ageGroup: "Age 18-24", percentage: 27 },
+      { ageGroup: "Age 25-34", percentage: 40 },
+      { ageGroup: "Age 35-44", percentage: 23 },
+      { ageGroup: "Age 45-54", percentage: 9 },
+      { ageGroup: "Age 55-64", percentage: 1 },
+      { ageGroup: "Age 65+", percentage: 0 },
+    ],
+    audienceFlow: [
+      { timeSlot: "06:00", value: 3.0 },
+      { timeSlot: "07:00", value: 3.5 },
+      { timeSlot: "08:00", value: 3.5 },
+      { timeSlot: "09:00", value: 4.0 },
+      { timeSlot: "10:00", value: 6.0 },
+      { timeSlot: "11:00", value: 5.5 },
+      { timeSlot: "12:00", value: 5.0 },
+      { timeSlot: "13:00", value: 5.0 },
+      { timeSlot: "14:00", value: 3.0 },
+      { timeSlot: "15:00", value: 3.5 },
+      { timeSlot: "16:00", value: 3.5 },
+      { timeSlot: "17:00", value: 4.0 },
+      { timeSlot: "18:00", value: 5.5 },
+      { timeSlot: "19:00", value: 4.5 },
+      { timeSlot: "20:00", value: 4.5 },
+      { timeSlot: "21:00", value: 4.0 },
+      { timeSlot: "22:00", value: 3.5 },
+      { timeSlot: "23:00", value: 3.5 },
+    ],
+  },
+  {
+    id: "premier-league",
+    name: "Premier League",
+    gender: [
+      { name: "Male", value: 62, fill: "#0d5c2e" },
+      { name: "Female", value: 38, fill: "#5a9bd4" },
+    ],
+    ageGroups: [
+      { ageGroup: "Age 18-24", percentage: 20 },
+      { ageGroup: "Age 25-34", percentage: 37 },
+      { ageGroup: "Age 35-44", percentage: 28 },
+      { ageGroup: "Age 45-54", percentage: 12 },
+      { ageGroup: "Age 55-64", percentage: 3 },
+      { ageGroup: "Age 65+", percentage: 0 },
+    ],
+    audienceFlow: [
+      { timeSlot: "06:00", value: 10 },
+      { timeSlot: "07:00", value: 11 },
+      { timeSlot: "08:00", value: 12 },
+      { timeSlot: "09:00", value: 13 },
+      { timeSlot: "10:00", value: 14 },
+      { timeSlot: "11:00", value: 18 },
+      { timeSlot: "12:00", value: 25 },
+      { timeSlot: "13:00", value: 32 },
+      { timeSlot: "14:00", value: 38 },
+      { timeSlot: "15:00", value: 42 },
+      { timeSlot: "16:00", value: 48 },
+      { timeSlot: "17:00", value: 65 },
+      { timeSlot: "18:00", value: 65 },
+      { timeSlot: "19:00", value: 85 },
+      { timeSlot: "20:00", value: 100 },
+      { timeSlot: "21:00", value: 80 },
+      { timeSlot: "22:00", value: 60 },
+      { timeSlot: "23:00", value: 40 },
+    ],
+  },
+  {
+    id: "football",
+    name: "Football",
+    gender: [
+      { name: "Male", value: 60, fill: "#0d5c2e" },
+      { name: "Female", value: 40, fill: "#5a9bd4" },
+    ],
+    ageGroups: [
+      { ageGroup: "Age 18-24", percentage: 18 },
+      { ageGroup: "Age 25-34", percentage: 39 },
+      { ageGroup: "Age 35-44", percentage: 24 },
+      { ageGroup: "Age 45-54", percentage: 16 },
+      { ageGroup: "Age 55-64", percentage: 3 },
+      { ageGroup: "Age 65+", percentage: 0 },
+    ],
+    audienceFlow: [
+      { timeSlot: "06:00", value: 4 },
+      { timeSlot: "07:00", value: 3 },
+      { timeSlot: "08:00", value: 3 },
+      { timeSlot: "09:00", value: 3 },
+      { timeSlot: "10:00", value: 4 },
+      { timeSlot: "11:00", value: 4 },
+      { timeSlot: "12:00", value: 4 },
+      { timeSlot: "13:00", value: 5 },
+      { timeSlot: "14:00", value: 5 },
+      { timeSlot: "15:00", value: 6 },
+      { timeSlot: "16:00", value: 6 },
+      { timeSlot: "17:00", value: 7 },
+      { timeSlot: "18:00", value: 8 },
+      { timeSlot: "19:00", value: 11 },
+      { timeSlot: "20:00", value: 29 },
+      { timeSlot: "21:00", value: 31 },
+      { timeSlot: "22:00", value: 21 },
+      { timeSlot: "23:00", value: 11 },
+    ],
+  },
+];
+
+/** Normalize a series to 0-100 for multi-line comparison */
+function normalizeTo100(arr) {
+  if (!arr?.length) return arr;
+  const min = Math.min(...arr.map((d) => d.value));
+  const max = Math.max(...arr.map((d) => d.value));
+  const range = max - min || 1;
+  return arr.map((d) => ({ ...d, value: Math.round(((d.value - min) / range) * 100) }));
+}
+
+/** Channels that have numeric audience flow (for multi-line chart) */
+export const channelsWithFlow = audienceChannels.filter((c) => c.audienceFlow != null);
+
+/** Multi-line data: one row per timeSlot, one dataKey per channel (normalized 0-100). timeSlot must match across channels. */
+export const audienceFlowMultiLine = (() => {
+  const slots = channelsWithFlow[0]?.audienceFlow?.map((d) => d.timeSlot) ?? [];
+  const rows = slots.map((timeSlot) => {
+    const row = { timeSlot };
+    channelsWithFlow.forEach((ch) => {
+      const point = ch.audienceFlow.find((p) => p.timeSlot === timeSlot);
+      if (point) row[ch.id] = point.value;
+    });
+    return row;
+  });
+  // Normalize each channel's series to 0-100
+  channelsWithFlow.forEach((ch) => {
+    const vals = rows.map((r) => r[ch.id]).filter((v) => v != null);
+    const min = Math.min(...vals);
+    const max = Math.max(...vals);
+    const range = max - min || 1;
+    rows.forEach((r, i) => {
+      if (r[ch.id] != null) r[ch.id] = Math.round(((r[ch.id] - min) / range) * 100);
+    });
+  });
+  return rows;
+})();
+
+/** Average gender across all channels (for overview) */
+export const audienceAverageGender = (() => {
+  const male = audienceChannels.reduce((s, c) => s + c.gender[0].value, 0) / audienceChannels.length;
+  const female = audienceChannels.reduce((s, c) => s + c.gender[1].value, 0) / audienceChannels.length;
+  return [
+    { name: "Male", value: Math.round(male), fill: "#0d5c2e" },
+    { name: "Female", value: Math.round(female), fill: "#5a9bd4" },
+  ];
+})();
+
+/** Average age distribution across all channels (same age group order) */
+const ageOrder = ["Age 18-24", "Age 25-34", "Age 35-44", "Age 45-54", "Age 55-64", "Age 65+"];
+export const audienceAverageAgeGroups = (() => {
+  const sums = ageOrder.map(() => 0);
+  audienceChannels.forEach((c) => {
+    c.ageGroups.forEach((a, i) => {
+      const idx = ageOrder.indexOf(a.ageGroup);
+      if (idx >= 0) sums[idx] += a.percentage;
+    });
+  });
+  return ageOrder.map((ageGroup, i) => ({
+    ageGroup,
+    percentage: Math.round(sums[i] / audienceChannels.length),
+  }));
+})();
