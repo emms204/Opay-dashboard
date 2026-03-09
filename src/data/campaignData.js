@@ -4,7 +4,7 @@
 
 export const terrestrial = {
   decJan: { householdsReachedM: 29.6, spots: 514, avgFrequency: 9.2, totalTVR: 2175.4, impacts: 29965698 },
-  feb: { householdsReachedM: 35.6, spots: 1020, avgFrequency: 13.1, totalTVR: 2687.7, impacts: 35588425 },
+  feb: { householdsReachedM: 35.6, spots: 1020, avgFrequency: 13.1, totalTVR: 2687.7, impacts: 40992247 },
 };
 
 export const cable = {
@@ -40,15 +40,16 @@ export const terrestrialChannelsDecJan = [
 
 export const terrestrialChannelsFeb = [
   { channel: "CNN", tvr: 375.6, impacts: 1777689 },
-  { channel: "Arise News", tvr: 325.1, impacts: 5315702 },
-  { channel: "Channels TV", tvr: 329.0, impacts: 3794015 },
-  { channel: "AIT Network", tvr: 234.5, impacts: 1517148 },
+  { channel: "Arise News", tvr: 325.1, impacts: 7603511 },
+  { channel: "Channels TV", tvr: 329.0, impacts: 4357546 },
+  { channel: "AIT Network", tvr: 234.5, impacts: 1800576 },
   { channel: "Zee World", tvr: 207.1, impacts: 4789274 },
-  { channel: "NTA Network", tvr: 215.3, impacts: 12862189 },
+  { channel: "NTA Network", tvr: 215.3, impacts: 14350377 },
   { channel: "ROK2", tvr: 164.8, impacts: 1193013 },
-  { channel: "TVC", tvr: 177.0, impacts: 1450689 },
+  { channel: "TVC", tvr: 177.0, impacts: 1789974 },
   { channel: "SuperSport Blitz", tvr: 136.4, impacts: 586912 },
   { channel: "ROK", tvr: 136.4, impacts: 871216 },
+  { channel: "Arewa TV", tvr: 116.3, impacts: 1412914 },
   { channel: "SuperSport Motorsport", tvr: 101.6, impacts: 256504 },
   { channel: "SuperSport Golf", tvr: 90.3, impacts: 103728 },
   { channel: "SuperSport Tennis", tvr: 78.3, impacts: 99012 },
@@ -99,24 +100,24 @@ export const periodTimeline = [
 
 /** Terrestrial campaign performance by program (Funita Campaign Performance Report) */
 export const terrestrialProgramsFeb = [
-  { channel: "Arise News", program: "THE MORNING SHOW (Ayo Mairo - Ese, Reuben & Rufai)", totalTVR: 325.1, impacts: 5315702, insertions: 20, avgFrequency: 6.8 },
-  { channel: "Arewa TV", program: "ROS", totalTVR: 116.3, impacts: 971334, insertions: 33, avgFrequency: 2.4 },
-  { channel: "AIT Network", program: "KAKAKI", totalTVR: 98.6, impacts: 769001, insertions: 20, avgFrequency: 3.5 },
-  { channel: "AIT Network", program: "NEWS @ 8PM", totalTVR: 135.9, impacts: 748147, insertions: 20, avgFrequency: 3.7 },
-  { channel: "Channels TV", program: "POLITICS TODAY (Seun Okinbaloye)", totalTVR: 176.1, impacts: 826012, insertions: 20, avgFrequency: 6.1 },
-  { channel: "Channels TV", program: "NEWS @ 10PM", totalTVR: 152.9, impacts: 2968003, insertions: 20, avgFrequency: 3.1 },
-  { channel: "NTA Network", program: "NEWS @ 9PM", totalTVR: 116.4, impacts: 6455163, insertions: 20, avgFrequency: 6.7 },
-  { channel: "NTA Network", program: "NEWSLINE", totalTVR: 98.9, impacts: 6407026, insertions: 20, avgFrequency: 8.2 },
-  { channel: "TVC", program: "YOUR VIEW", totalTVR: 85.4, impacts: 785430, insertions: 30, avgFrequency: 4.1 },
-  { channel: "TVC", program: "NEWS @ 10PM", totalTVR: 91.6, impacts: 665259, insertions: 30, avgFrequency: 3.9 },
+  { channel: "Arise News", program: "THE MORNING SHOW (Ayo Mairo - Ese, Rueben & Rufai)", totalTVR: 325.1, impacts: 7603511, insertions: 20, avgFrequency: 6.8 },
+  { channel: "Arewa TV", program: "ROS", totalTVR: 116.3, impacts: 1412914, insertions: 33, avgFrequency: 2.4 },
+  { channel: "AIT Network", program: "KAKAKI", totalTVR: 98.6, impacts: 937548, insertions: 20, avgFrequency: 3.5 },
+  { channel: "AIT Network", program: "NEWS @ 8PM", totalTVR: 135.9, impacts: 863028, insertions: 20, avgFrequency: 3.7 },
+  { channel: "Channels TV", program: "POLITICS TODAY (Seun Okinbaloye)", totalTVR: 176.1, impacts: 979543, insertions: 20, avgFrequency: 6.1 },
+  { channel: "Channels TV", program: "NEWS @ 10PM", totalTVR: 152.9, impacts: 3378003, insertions: 20, avgFrequency: 3.1 },
+  { channel: "NTA Network", program: "NEWS @ 9PM", totalTVR: 116.4, impacts: 7039318, insertions: 20, avgFrequency: 6.7 },
+  { channel: "NTA Network", program: "NEWSLINE", totalTVR: 98.9, impacts: 7311059, insertions: 20, avgFrequency: 8.2 },
+  { channel: "TVC", program: "YOUR VIEW", totalTVR: 85.4, impacts: 966573, insertions: 30, avgFrequency: 4.1 },
+  { channel: "TVC", program: "NEWS @ 10PM", totalTVR: 91.6, impacts: 823401, insertions: 30, avgFrequency: 3.9 },
   { channel: "Zee World", program: "8pm - 9pm Belt", totalTVR: 207.1, impacts: 4789274, insertions: 123, avgFrequency: 6.2 },
   { channel: "ROK", program: "TACTICAL SPONSORSHIP", totalTVR: 136.4, impacts: 871216, insertions: 156, avgFrequency: 5.9 },
-  { channel: "ROK2", program: "ROS", totalTVR: 164.8, impacts: 1193013, insertions: 120, avgFrequency: 6.1 },
+  { channel: "ROK2", program: "TACTICAL SPONSORSHIP", totalTVR: 164.8, impacts: 1193013, insertions: 120, avgFrequency: 6.1 },
   { channel: "CNN", program: "TACTICAL ASSOCIATION", totalTVR: 375.6, impacts: 1777689, insertions: 186, avgFrequency: 6.3 },
-  { channel: "SuperSport Blitz", program: "ROS", totalTVR: 136.4, impacts: 586912, insertions: 55, avgFrequency: 4.2 },
-  { channel: "SuperSport Tennis", program: "ROS", totalTVR: 78.3, impacts: 99012, insertions: 50, avgFrequency: 5.9 },
-  { channel: "SuperSport Motorsport", program: "ROS", totalTVR: 101.6, impacts: 256504, insertions: 46, avgFrequency: 5.8 },
-  { channel: "SuperSport Golf", program: "ROS", totalTVR: 90.3, impacts: 103728, insertions: 51, avgFrequency: 5.6 },
+  { channel: "SuperSport Blitz", program: "TACTICAL ASSOCIATION", totalTVR: 136.4, impacts: 586912, insertions: 55, avgFrequency: 4.2 },
+  { channel: "SuperSport Tennis", program: "TACTICAL ASSOCIATION", totalTVR: 78.3, impacts: 99012, insertions: 50, avgFrequency: 5.9 },
+  { channel: "SuperSport Motorsport", program: "TACTICAL ASSOCIATION", totalTVR: 101.6, impacts: 256504, insertions: 46, avgFrequency: 5.8 },
+  { channel: "SuperSport Golf", program: "TACTICAL ASSOCIATION", totalTVR: 90.3, impacts: 103728, insertions: 51, avgFrequency: 5.6 },
 ];
 
 export const terrestrialProgramsDecJan = [
