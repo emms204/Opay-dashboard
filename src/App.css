@@ -727,6 +727,67 @@
   color: var(--text-muted);
 }
 
+/* ---- Insight accordion (below charts) ---- */
+.insight-accordion {
+  margin-top: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--green-pale);
+  overflow: hidden;
+}
+
+.insight-accordion-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.6rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--green-dark);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.insight-accordion-trigger:hover {
+  background: rgba(45, 157, 90, 0.12);
+}
+
+.insight-accordion-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+  opacity: 0.8;
+}
+
+.insight-accordion-content {
+  padding: 1rem 1.25rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--green-dark);
+  background: var(--white);
+  border-top: 1px solid var(--border);
+}
+
+.insight-accordion-content p {
+  margin: 0 0 0.75rem;
+}
+
+.insight-accordion-content p:last-child,
+.insight-accordion-content ul:last-child {
+  margin-bottom: 0;
+}
+
+.insight-accordion-content ul {
+  margin: 0.5rem 0 0.75rem 1.25rem;
+  padding: 0;
+}
+
+.insight-accordion-content li {
+  margin-bottom: 0.35rem;
+}
+
 .page-overview {
   margin: 0 0 1rem;
   font-size: 0.9rem;

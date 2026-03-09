@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   BarChart,
   Bar,
@@ -42,7 +42,8 @@ import {
 import { BrandLogos } from './components/BrandLogos';
 import { ChartTooltip } from './components/ChartTooltip';
 import { DrillDownPanel } from './components/DrillDownPanel';
-import { PageOverview } from './components/PageOverview';
+import { InsightAccordion } from './components/InsightAccordion';
+import { INSIGHTS } from './data/chartInsights';
 import './App.css';
 
 const COLORS = {
@@ -120,8 +121,6 @@ const OVERVIEW_ICONS = {
   ),
 };
 
-const REPORT_NOTES_KEY = 'opay-dashboard-report-notes';
-
 export default function App() {
   const [view, setView] = useState('reach');
   const [period, setPeriod] = useState('feb');
@@ -129,20 +128,6 @@ export default function App() {
   const [programSortKey, setProgramSortKey] = useState('totalTVR');
   const [programSortAsc, setProgramSortAsc] = useState(false);
   const [selectedAudienceChannel, setSelectedAudienceChannel] = useState('cnn');
-  const [reportNotesEditMode, setReportNotesEditMode] = useState(false);
-  const [reportNotes, setReportNotes] = useState(() => {
-    try {
-      return localStorage.getItem(REPORT_NOTES_KEY) ?? '';
-    } catch {
-      return '';
-    }
-  });
-
-  useEffect(() => {
-    try {
-      if (reportNotes !== undefined) localStorage.setItem(REPORT_NOTES_KEY, reportNotes);
-    } catch (_) {}
-  }, [reportNotes]);
 
   const c = period === 'decjan' ? cable.decJan : cable.feb;
   const t = period === 'decjan' ? terrestrial.decJan : terrestrial.feb;
@@ -313,34 +298,6 @@ export default function App() {
           return (
             <div className="view-content-stack overview-two-col">
               <h3 className="chart-title overview-page-title">Campaign overview — Dec/Jan vs February</h3>
-              <PageOverview>
-                Shows total reach, spots, frequency, GRPs/TVR, and impacts for Terrestrial and Cable. Compares Dec/Jan to February so you can see growth between periods.
-              </PageOverview>
-              <div className="overview-notes-section">
-                <label htmlFor="report-notes" className="overview-notes-label">Administrator notes / comments</label>
-                {!reportNotesEditMode && (
-                  <p className="overview-notes-hint">Double-click the box below to edit.</p>
-                )}
-                <textarea
-                  id="report-notes"
-                  className={`overview-notes-input ${reportNotesEditMode ? 'overview-notes-input--editing' : ''}`}
-                  placeholder="Add comments or notes about this report…"
-                  value={reportNotes}
-                  onChange={(e) => setReportNotes(e.target.value)}
-                  onDoubleClick={() => setReportNotesEditMode(true)}
-                  readOnly={!reportNotesEditMode}
-                  rows={4}
-                />
-                {reportNotesEditMode && (
-                  <button
-                    type="button"
-                    className="overview-notes-save"
-                    onClick={() => setReportNotesEditMode(false)}
-                  >
-                    Save
-                  </button>
-                )}
-              </div>
               <div className="overview-cards">
                 <div className="overview-card overview-card--terrestrial">
                   <div className="overview-card-header">
@@ -382,6 +339,7 @@ export default function App() {
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
+                  <InsightAccordion>{INSIGHTS.campaignOverviewTerrestrial}</InsightAccordion>
                 </div>
                 <div className="overview-card overview-card--cable">
                   <div className="overview-card-header">
@@ -422,6 +380,7 @@ export default function App() {
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
+                  <InsightAccordion>{INSIGHTS.campaignOverviewCable}</InsightAccordion>
                 </div>
               </div>
             </div>
@@ -430,9 +389,6 @@ export default function App() {
 
         {view === 'reach' && (
           <>
-            <PageOverview>
-              Compares household reach and key metrics between Cable (DStv + GOtv) and Terrestrial (Funita) for the selected period. Use the period selector above to switch between Dec/Jan and February.
-            </PageOverview>
             <div className="chart-large">
               <h3 className="chart-title">Cable vs Terrestrial — Households reached (M)</h3>
               <div className="chart-inner">
@@ -456,6 +412,7 @@ export default function App() {
                   </BarChart>
                 </ResponsiveContainer>
               </div>
+              <InsightAccordion>{INSIGHTS.reachHouseholds}</InsightAccordion>
             </div>
             <div className="chart-small">
               <h3 className="chart-title">Share of reach</h3>
@@ -480,6 +437,7 @@ export default function App() {
                   </PieChart>
                 </ResponsiveContainer>
               </div>
+              <InsightAccordion>{INSIGHTS.reachSharePie}</InsightAccordion>
             </div>
             <div className="chart-large chart-full">
               <h3 className="chart-title">Spots &amp; avg. frequency</h3>
@@ -513,15 +471,13 @@ export default function App() {
                   </BarChart>
                 </ResponsiveContainer>
               </div>
+              <InsightAccordion>{INSIGHTS.reachSpotsFreq}</InsightAccordion>
             </div>
           </>
         )}
 
         {view === 'growth' && (
           <div className="view-content-stack">
-            <PageOverview>
-              Plots household reach and spot count across Dec/Jan and February on one chart so you can see trends at a glance. Both periods are always shown—no period selector needed.
-            </PageOverview>
             <div className="chart-large">
               <h3 className="chart-title">Household reach over time (M)</h3>
               <div className="chart-inner">
@@ -600,6 +556,7 @@ export default function App() {
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
+              <InsightAccordion>{INSIGHTS.growthHouseholdReach}</InsightAccordion>
             </div>
             <div className="chart-small">
               <h3 className="chart-title">Spots over time</h3>
@@ -633,15 +590,13 @@ export default function App() {
                   </LineChart>
                 </ResponsiveContainer>
               </div>
+              <InsightAccordion>{INSIGHTS.growthSpots}</InsightAccordion>
             </div>
           </div>
         )}
 
         {view === 'dstv-gotv' && (
           <>
-            <PageOverview>
-              Breaks out Cable into DStv and GOtv: reach, TVR, impacts, and frequency for the selected period. Use the period selector to switch between Dec/Jan and February.
-            </PageOverview>
             <div className="chart-large">
               <h3 className="chart-title">DStv vs GOtv — {periodLabel}</h3>
               <div className="chart-inner">
@@ -671,6 +626,7 @@ export default function App() {
                   </BarChart>
                 </ResponsiveContainer>
               </div>
+              <InsightAccordion>{INSIGHTS.dstvGotvBar}</InsightAccordion>
             </div>
             <div className="chart-small-group">
               <div className="chart-small">
@@ -707,6 +663,7 @@ export default function App() {
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
+                <InsightAccordion>{INSIGHTS.dstvGotvReachShare}</InsightAccordion>
               </div>
               <div className="chart-small">
                 <h3 className="chart-title">Reach comparison</h3>
@@ -719,6 +676,7 @@ export default function App() {
                     </RadialBarChart>
                   </ResponsiveContainer>
                 </div>
+                <InsightAccordion>{INSIGHTS.dstvGotvRadial}</InsightAccordion>
               </div>
             </div>
           </>
@@ -726,9 +684,6 @@ export default function App() {
 
         {view === 'top-channels' && (
           <>
-            <PageOverview>
-              Ranks channels by TVR for Terrestrial and Cable. Shows top 5 share (pie) and top 10 by TVR (bar). Use the period selector to change between Dec/Jan and February.
-            </PageOverview>
             <div className="chart-large">
               <h3 className="chart-title">Top channels by TVR — Terrestrial (Funita)</h3>
               <div className="chart-inner">
@@ -749,6 +704,7 @@ export default function App() {
                   </BarChart>
                 </ResponsiveContainer>
               </div>
+              <InsightAccordion>{INSIGHTS.topChannelsTerrestrial}</InsightAccordion>
             </div>
             <div className="chart-small chart-small--with-legend">
               <h3 className="chart-title">Top 5 Terrestrial (TVR share)</h3>
@@ -777,6 +733,7 @@ export default function App() {
                   </PieChart>
                 </ResponsiveContainer>
               </div>
+              <InsightAccordion>{INSIGHTS.topChannelsTerrestrialPie}</InsightAccordion>
             </div>
             <div className="chart-large">
               <h3 className="chart-title">Top channels by TVR — Cable (DStv + GOtv)</h3>
@@ -801,6 +758,7 @@ export default function App() {
                   </BarChart>
                 </ResponsiveContainer>
               </div>
+              <InsightAccordion>{INSIGHTS.topChannelsCable}</InsightAccordion>
             </div>
             <div className="chart-small chart-small--with-legend">
               <h3 className="chart-title">Top 5 Cable (TVR share)</h3>
@@ -829,6 +787,7 @@ export default function App() {
                   </PieChart>
                 </ResponsiveContainer>
               </div>
+              <InsightAccordion>{INSIGHTS.topChannelsCablePie}</InsightAccordion>
             </div>
           </>
         )}
@@ -838,9 +797,6 @@ export default function App() {
           const LINE_COLORS = [COLORS.terrestrial, COLORS.terrestrialAlt, COLORS.orange, COLORS.purple, COLORS.gotv];
           return (
             <div className="view-content-stack audience-demographics-view">
-              <PageOverview>
-                First section: average gender and age across channels, plus audience reach by time of day (all channels). Second section: pick a channel from the dropdown to see its own gender, age, and time-of-day pattern.
-              </PageOverview>
               <p className="chart-subtitle">Source: Funita — Your Target Customers spend time watching (Feb 2026).</p>
 
               {/* Audience Overview */}
@@ -858,6 +814,7 @@ export default function App() {
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
+                  <InsightAccordion>{INSIGHTS.audienceOverviewGender}</InsightAccordion>
                 </div>
                 <div className="chart-small">
                   <h3 className="chart-title">Average age group distribution</h3>
@@ -871,6 +828,7 @@ export default function App() {
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
+                  <InsightAccordion>{INSIGHTS.audienceOverviewAge}</InsightAccordion>
                 </div>
               </div>
               <div className="chart-large">
@@ -889,6 +847,7 @@ export default function App() {
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
+                <InsightAccordion>{INSIGHTS.audienceOverviewTime}</InsightAccordion>
               </div>
 
               {/* Channel filter + per-channel section */}
@@ -954,15 +913,13 @@ export default function App() {
               ) : (
                 <p className="chart-subtitle">No numeric audience flow data for this channel in the report (ROK uses text descriptors).</p>
               )}
+              <InsightAccordion>{INSIGHTS.audienceChannelDetail}</InsightAccordion>
             </div>
           );
         })()}
 
         {view === 'top-programs' && (
           <div className="view-content-stack" style={{ width: '100%' }}>
-            <PageOverview>
-              Terrestrial program-level performance: TVR, impacts, insertions, and frequency per program. Table is sortable by column. The heat map shows viewership by time of day. Use the period selector for Dec/Jan or February.
-            </PageOverview>
             <div className="chart-large">
               <h3 className="chart-title">Terrestrial program performance — {periodLabel}</h3>
               <div className="programs-table-wrap">
@@ -991,6 +948,7 @@ export default function App() {
                   </tbody>
                 </table>
               </div>
+              <InsightAccordion>{INSIGHTS.topProgramsTable}</InsightAccordion>
             </div>
             <div className="chart-large">
               <h3 className="chart-title">Viewership by time slot (CNN Mon–Fri, relative level)</h3>
@@ -1004,6 +962,7 @@ export default function App() {
                   ))}
                 </div>
               </div>
+              <InsightAccordion>{INSIGHTS.topProgramsHeatmap}</InsightAccordion>
             </div>
           </div>
         )}
