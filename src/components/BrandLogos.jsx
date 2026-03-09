@@ -9,7 +9,7 @@ import { useState } from 'react';
  */
 const LOGOS = [
   { src: '/logos/opay-logo.svg', alt: 'OPay', name: 'OPay' },
-  { src: '/logos/funita-logo.svg', alt: 'Funita', name: 'Funita' },
+  { src: '/logos/funita-logo.svg', alt: 'Terrestrial', name: 'Terrestrial' },
   { src: '/logos/dstv-logo.svg', alt: 'DStv', name: 'DStv' },
   { src: '/logos/gotv-logo.svg', alt: 'GOtv', name: 'GOtv' },
 ];

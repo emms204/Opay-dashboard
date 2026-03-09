@@ -111,12 +111,12 @@ export const terrestrialProgramsFeb = [
   { channel: "TVC", program: "NEWS @ 10PM", totalTVR: 91.6, impacts: 665259, insertions: 30, avgFrequency: 3.9 },
   { channel: "Zee World", program: "8pm - 9pm Belt", totalTVR: 207.1, impacts: 4789274, insertions: 123, avgFrequency: 6.2 },
   { channel: "ROK", program: "TACTICAL SPONSORSHIP", totalTVR: 136.4, impacts: 871216, insertions: 156, avgFrequency: 5.9 },
-  { channel: "ROK2", program: "—", totalTVR: 164.8, impacts: 1193013, insertions: 120, avgFrequency: 6.1 },
+  { channel: "ROK2", program: "ROS", totalTVR: 164.8, impacts: 1193013, insertions: 120, avgFrequency: 6.1 },
   { channel: "CNN", program: "TACTICAL ASSOCIATION", totalTVR: 375.6, impacts: 1777689, insertions: 186, avgFrequency: 6.3 },
-  { channel: "SuperSport Blitz", program: "—", totalTVR: 136.4, impacts: 586912, insertions: 55, avgFrequency: 4.2 },
-  { channel: "SuperSport Tennis", program: "—", totalTVR: 78.3, impacts: 99012, insertions: 50, avgFrequency: 5.9 },
-  { channel: "SuperSport Motorsport", program: "—", totalTVR: 101.6, impacts: 256504, insertions: 46, avgFrequency: 5.8 },
-  { channel: "SuperSport Golf", program: "—", totalTVR: 90.3, impacts: 103728, insertions: 51, avgFrequency: 5.6 },
+  { channel: "SuperSport Blitz", program: "ROS", totalTVR: 136.4, impacts: 586912, insertions: 55, avgFrequency: 4.2 },
+  { channel: "SuperSport Tennis", program: "ROS", totalTVR: 78.3, impacts: 99012, insertions: 50, avgFrequency: 5.9 },
+  { channel: "SuperSport Motorsport", program: "ROS", totalTVR: 101.6, impacts: 256504, insertions: 46, avgFrequency: 5.8 },
+  { channel: "SuperSport Golf", program: "ROS", totalTVR: 90.3, impacts: 103728, insertions: 51, avgFrequency: 5.6 },
 ];
 
 export const terrestrialProgramsDecJan = [
@@ -132,11 +132,11 @@ export const terrestrialProgramsDecJan = [
   { channel: "TVC", program: "NEWS @ 10PM", totalTVR: 91.6, impacts: 505028, insertions: 20, avgFrequency: 3.7 },
   { channel: "Zee World", program: "8pm - 9pm Belt", totalTVR: 207.1, impacts: 2989274, insertions: 63, avgFrequency: 5.3 },
   { channel: "ROK", program: "TACTICAL SPONSORSHIP", totalTVR: 104.4, impacts: 456526, insertions: 45, avgFrequency: 5.4 },
-  { channel: "ROK2", program: "—", totalTVR: 128.2, impacts: 844008, insertions: 44, avgFrequency: 3.9 },
+  { channel: "ROK2", program: "ROS", totalTVR: 128.2, impacts: 844008, insertions: 44, avgFrequency: 3.9 },
   { channel: "CNN", program: "TACTICAL ASSOCIATION", totalTVR: 184.2, impacts: 1311716, insertions: 20, avgFrequency: 5.6 },
-  { channel: "SuperSport Tennis", program: "—", totalTVR: 11.3, impacts: 52377, insertions: 29, avgFrequency: 5.4 },
-  { channel: "SuperSport Motorsport", program: "—", totalTVR: 91.7, impacts: 211257, insertions: 28, avgFrequency: 5.7 },
-  { channel: "SuperSport Golf", program: "—", totalTVR: 51.3, impacts: 74848, insertions: 30, avgFrequency: 5.5 },
+  { channel: "SuperSport Tennis", program: "ROS", totalTVR: 11.3, impacts: 52377, insertions: 29, avgFrequency: 5.4 },
+  { channel: "SuperSport Motorsport", program: "ROS", totalTVR: 91.7, impacts: 211257, insertions: 28, avgFrequency: 5.7 },
+  { channel: "SuperSport Golf", program: "ROS", totalTVR: 51.3, impacts: 74848, insertions: 30, avgFrequency: 5.5 },
 ];
 
 /** CNN audience demographics (Funita: Your Target Customers spend time watching CNN) - kept for backward compat */
