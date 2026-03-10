@@ -139,7 +139,7 @@ export default function App() {
 
   const reachCompareData = [
     { name: 'Cable', value: c.householdsReachedM, fill: COLORS.cable, spots: c.spots, frequency: c.avgFrequency, grps: c.grps },
-    { name: 'Terrestrial', value: t.householdsReachedM, fill: COLORS.terrestrial, spots: t.spots, frequency: t.avgFrequency, totalTVR: t.totalTVR, impacts: t.impacts },
+    { name: 'Terrestrial', value: t.householdsReachedM, fill: COLORS.terrestrial, spots: t.spots, frequency: t.avgFrequency, totalTVR: t.totalTVR },
   ];
 
   const reachPieData = reachCompareData.map((d) => ({ ...d }));
@@ -313,15 +313,14 @@ export default function App() {
                     {overviewMetric('spots', 'Total spots', tDec.spots, tFeb.spots, 'color-terrestrial')}
                     {overviewMetric('frequency', 'Avg. frequency', tDec.avgFrequency, tFeb.avgFrequency, 'color-terrestrial', (v) => v.toFixed(1))}
                     {overviewMetric('tvr', 'Total TVR', tDec.totalTVR, tFeb.totalTVR, 'color-terrestrial', (v) => v.toFixed(1))}
-                    {overviewMetric('impacts', 'Impacts', tDec.impacts, tFeb.impacts, 'color-terrestrial', (v) => formatNum(v))}
                   </div>
                   <div className="overview-mini-chart">
-                    <h5>Impacts by channel (Feb)</h5>
+                    <h5>Reach by channel (Feb)</h5>
                     <ResponsiveContainer width="100%" height={140}>
                       <BarChart data={terrImpactByChannel} layout="vertical" margin={{ left: 50, right: 8, top: 4, bottom: 4 }}>
                         <XAxis type="number" tickFormatter={(v) => v + 'M'} />
                         <YAxis type="category" dataKey="name" width={48} tick={{ fontSize: 9 }} />
-                        <Tooltip formatter={(v) => [v.toFixed(2) + 'M impacts', 'Impacts']} />
+                        <Tooltip formatter={(v) => [v.toFixed(2) + 'M reach', 'Reach']} />
                         <Bar dataKey="value" radius={[0, 3, 3, 0]}>
                           {terrImpactByChannel.map((entry, i) => (<Cell key={i} fill={entry.fill} />))}
                         </Bar>
@@ -929,7 +928,7 @@ export default function App() {
                       <th onClick={() => { setProgramSortKey('channel'); setProgramSortAsc((a) => !a); }} className="sortable">Channel</th>
                       <th onClick={() => { setProgramSortKey('program'); setProgramSortAsc((a) => !a); }} className="sortable">Program</th>
                       <th onClick={() => { setProgramSortKey('totalTVR'); setProgramSortAsc((a) => !a); }} className="sortable">Total TVR</th>
-                      <th onClick={() => { setProgramSortKey('impacts'); setProgramSortAsc((a) => !a); }} className="sortable">Impacts</th>
+                      <th onClick={() => { setProgramSortKey('impacts'); setProgramSortAsc((a) => !a); }} className="sortable">Reach</th>
                       <th onClick={() => { setProgramSortKey('insertions'); setProgramSortAsc((a) => !a); }} className="sortable">Insertions</th>
                       <th onClick={() => { setProgramSortKey('avgFrequency'); setProgramSortAsc((a) => !a); }} className="sortable">Avg. frequency</th>
                     </tr>

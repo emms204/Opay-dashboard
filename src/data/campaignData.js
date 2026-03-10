@@ -3,8 +3,8 @@
  */
 
 export const terrestrial = {
-  decJan: { householdsReachedM: 29.6, spots: 514, avgFrequency: 9.2, totalTVR: 2175.4, impacts: 29965698 },
-  feb: { householdsReachedM: 35.6, spots: 1020, avgFrequency: 13.1, totalTVR: 3487.3, impacts: 40992247 },
+  decJan: { householdsReachedM: 29.6, spots: 514, avgFrequency: 9.2, totalTVR: 2175.4 },
+  feb: { householdsReachedM: 41, spots: 1020, avgFrequency: 13.1, totalTVR: 3487.3 },
 };
 
 export const cable = {
@@ -95,7 +95,7 @@ export const cableChannelsFeb = [
 /** For period-over-period line/area charts */
 export const periodTimeline = [
   { period: "Dec/Jan", cableHH: 20.1, terrestrialHH: 29.6, cableSpots: 750, terrestrialSpots: 514, cableFreq: 7.0, terrestrialFreq: 9.2 },
-  { period: "Feb", cableHH: 21.2, terrestrialHH: 35.6, cableSpots: 871, terrestrialSpots: 1020, cableFreq: 9.9, terrestrialFreq: 13.1 },
+  { period: "Feb", cableHH: 21.2, terrestrialHH: 41, cableSpots: 871, terrestrialSpots: 1020, cableFreq: 9.9, terrestrialFreq: 13.1 },
 ];
 
 /** Terrestrial campaign performance by program (Funita Campaign Performance Report) */
