@@ -26,10 +26,13 @@ import {
   periodTimeline,
   terrestrialChannelsDecJan,
   terrestrialChannelsFeb,
+  terrestrialChannelsMar,
   cableChannelsDecJan,
   cableChannelsFeb,
+  cableChannelsMar,
   terrestrialProgramsFeb,
   terrestrialProgramsDecJan,
+  terrestrialProgramsMar,
   cnnGender,
   cnnAgeGroups,
   cnnAudienceFlowByHour,
@@ -129,13 +132,13 @@ export default function App() {
   const [programSortAsc, setProgramSortAsc] = useState(false);
   const [selectedAudienceChannel, setSelectedAudienceChannel] = useState('cnn');
 
-  const c = period === 'decjan' ? cable.decJan : cable.feb;
-  const t = period === 'decjan' ? terrestrial.decJan : terrestrial.feb;
-  const d = period === 'decjan' ? dstv.decJan : dstv.feb;
-  const g = period === 'decjan' ? gotv.decJan : gotv.feb;
+  const c = period === 'decjan' ? cable.decJan : period === 'feb' ? cable.feb : cable.mar;
+  const t = period === 'decjan' ? terrestrial.decJan : period === 'feb' ? terrestrial.feb : terrestrial.mar;
+  const d = period === 'decjan' ? dstv.decJan : period === 'feb' ? dstv.feb : dstv.mar;
+  const g = period === 'decjan' ? gotv.decJan : period === 'feb' ? gotv.feb : gotv.mar;
 
-  const periodLabel = period === 'decjan' ? 'Dec/Jan 2026' : 'February 2026';
-  const periodShort = period === 'decjan' ? 'Dec/Jan' : 'Feb';
+  const periodLabel = period === 'decjan' ? 'Dec/Jan 2026' : period === 'feb' ? 'February 2026' : 'March 2026';
+  const periodShort = period === 'decjan' ? 'Dec/Jan' : period === 'feb' ? 'Feb' : 'Mar';
 
   const reachCompareData = [
     { name: 'Cable', value: c.householdsReachedM, fill: COLORS.cable, spots: c.spots, frequency: c.avgFrequency, grps: c.grps },
@@ -162,11 +165,11 @@ export default function App() {
   ];
   const cableShareTotal = d.householdsReachedM + g.householdsReachedM;
 
-  const topTerr = (period === 'decjan' ? terrestrialChannelsDecJan : terrestrialChannelsFeb)
+  const topTerr = (period === 'decjan' ? terrestrialChannelsDecJan : period === 'feb' ? terrestrialChannelsFeb : terrestrialChannelsMar)
     .slice()
     .sort((a, b) => b.tvr - a.tvr)
     .slice(0, 10);
-  const topCable = (period === 'decjan' ? cableChannelsDecJan : cableChannelsFeb)
+  const topCable = (period === 'decjan' ? cableChannelsDecJan : period === 'feb' ? cableChannelsFeb : cableChannelsMar)
     .slice()
     .sort((a, b) => b.tvr - a.tvr)
     .slice(0, 10);
@@ -179,11 +182,11 @@ export default function App() {
   }));
 
   const radialReach = [
-    { name: period === 'decjan' ? 'Terrestrial Dec/Jan' : 'Terrestrial Feb', value: Math.min(100, (t.householdsReachedM / 40) * 100), fill: COLORS.terrestrial },
-    { name: period === 'decjan' ? 'Cable Dec/Jan' : 'Cable Feb', value: Math.min(100, (c.householdsReachedM / 40) * 100), fill: COLORS.cable },
+    { name: period === 'decjan' ? 'Terrestrial Dec/Jan' : period === 'feb' ? 'Terrestrial Feb' : 'Terrestrial Mar', value: Math.min(100, (t.householdsReachedM / 40) * 100), fill: COLORS.terrestrial },
+    { name: period === 'decjan' ? 'Cable Dec/Jan' : period === 'feb' ? 'Cable Feb' : 'Cable Mar', value: Math.min(100, (c.householdsReachedM / 40) * 100), fill: COLORS.cable },
   ];
 
-  const terrestrialPrograms = (period === 'decjan' ? terrestrialProgramsDecJan : terrestrialProgramsFeb).slice();
+  const terrestrialPrograms = (period === 'decjan' ? terrestrialProgramsDecJan : period === 'feb' ? terrestrialProgramsFeb : terrestrialProgramsMar).slice();
   terrestrialPrograms.sort((a, b) => {
     const va = a[programSortKey];
     const vb = b[programSortKey];
@@ -193,8 +196,10 @@ export default function App() {
 
   const tDec = terrestrial.decJan;
   const tFeb = terrestrial.feb;
+  const tMar = terrestrial.mar;
   const cDec = cable.decJan;
   const cFeb = cable.feb;
+  const cMar = cable.mar;
 
   const reachTooltipRows = (raw) => [
     { label: 'Households reached', value: raw.value + ' M' },
@@ -247,6 +252,7 @@ export default function App() {
               >
                 <option value="decjan">Dec/Jan 2026</option>
                 <option value="feb">February 2026</option>
+                <option value="mar">March 2026</option>
               </select>
             </label>
           </div>
@@ -269,8 +275,8 @@ export default function App() {
       {/* Central display */}
       <main className={`view-content ${view === 'top-channels' ? 'view-content--top-channels' : ''}`}>
         {view === 'campaign-overview' && (() => {
-          const terrImpactByChannel = [...terrestrialChannelsFeb].sort((a, b) => b.impacts - a.impacts).slice(0, 6).map((r) => ({ name: r.channel, value: r.impacts / 1e6, fill: COLORS.terrestrial }));
-          const cableImpactByChannel = [...cableChannelsFeb].sort((a, b) => b.impacts - a.impacts).slice(0, 6).map((r) => ({ name: (r.platform ? r.platform + ' ' : '') + r.channel, value: r.impacts / 1e6, fill: r.platform === 'DStv' ? COLORS.dstv : COLORS.gotv }));
+          const terrImpactByChannel = [...terrestrialChannelsMar].sort((a, b) => b.impacts - a.impacts).slice(0, 6).map((r) => ({ name: r.channel, value: r.impacts / 1e6, fill: COLORS.terrestrial }));
+          const cableImpactByChannel = [...cableChannelsMar].sort((a, b) => b.impacts - a.impacts).slice(0, 6).map((r) => ({ name: (r.platform ? r.platform + ' ' : '') + r.channel, value: r.impacts / 1e6, fill: r.platform === 'DStv' ? COLORS.dstv : COLORS.gotv }));
           const overviewMetric = (iconKey, label, prevNum, currNum, colorClass, format = (v) => String(v)) => {
             const pctStr = pctChange(prevNum, currNum) ?? '0.0';
             const num = pctChangeNum(prevNum, currNum);
@@ -297,25 +303,25 @@ export default function App() {
           };
           return (
             <div className="view-content-stack overview-two-col">
-              <h3 className="chart-title overview-page-title">Campaign overview — Dec/Jan vs February</h3>
+              <h3 className="chart-title overview-page-title">Campaign overview — Dec/Jan vs March</h3>
               <div className="overview-cards">
                 <div className="overview-card overview-card--terrestrial">
                   <div className="overview-card-header">
                     <h4>Terrestrial (Funita)</h4>
                     <div className="overview-hero-kpi">
-                      <span className="overview-hero-value">{tFeb.householdsReachedM}</span>
+                      <span className="overview-hero-value">{tMar.householdsReachedM}</span>
                       <span className="overview-hero-unit">M reach</span>
-                      <span className="overview-hero-change positive">↑ {pctChange(tDec.householdsReachedM, tFeb.householdsReachedM)}%</span>
+                      <span className="overview-hero-change positive">↑ {pctChange(tDec.householdsReachedM, tMar.householdsReachedM)}%</span>
                     </div>
                   </div>
                   <div className="overview-metrics">
-                    {overviewMetric('reach', 'Total reach (HH M)', tDec.householdsReachedM, tFeb.householdsReachedM, 'color-terrestrial', (v) => v + ' M')}
-                    {overviewMetric('spots', 'Total spots', tDec.spots, tFeb.spots, 'color-terrestrial')}
-                    {overviewMetric('frequency', 'Avg. frequency', tDec.avgFrequency, tFeb.avgFrequency, 'color-terrestrial', (v) => v.toFixed(1))}
-                    {overviewMetric('tvr', 'Total TVR', tDec.totalTVR, tFeb.totalTVR, 'color-terrestrial', (v) => v.toFixed(1))}
+                    {overviewMetric('reach', 'Total reach (HH M)', tDec.householdsReachedM, tMar.householdsReachedM, 'color-terrestrial', (v) => v + ' M')}
+                    {overviewMetric('spots', 'Total spots', tDec.spots, tMar.spots, 'color-terrestrial')}
+                    {overviewMetric('frequency', 'Avg. frequency', tDec.avgFrequency, tMar.avgFrequency, 'color-terrestrial', (v) => v.toFixed(1))}
+                    {overviewMetric('tvr', 'Total TVR', tDec.totalTVR, tMar.totalTVR, 'color-terrestrial', (v) => v.toFixed(1))}
                   </div>
                   <div className="overview-mini-chart">
-                    <h5>Reach by channel (Feb)</h5>
+                    <h5>Reach by channel (Mar)</h5>
                     <ResponsiveContainer width="100%" height={140}>
                       <BarChart data={terrImpactByChannel} layout="vertical" margin={{ left: 50, right: 8, top: 4, bottom: 4 }}>
                         <XAxis type="number" tickFormatter={(v) => v + 'M'} />
@@ -330,9 +336,9 @@ export default function App() {
                   <div className="overview-spark">
                     <span className="overview-spark-label">Reach trend</span>
                     <ResponsiveContainer width="100%" height={36}>
-                      <BarChart data={[{ period: 'Dec/Jan', value: tDec.householdsReachedM }, { period: 'Feb', value: tFeb.householdsReachedM }]} margin={{ top: 2, right: 4, bottom: 2, left: 4 }}>
+                      <BarChart data={[{ period: 'Dec/Jan', value: tDec.householdsReachedM }, { period: 'Feb', value: tFeb.householdsReachedM }, { period: 'Mar', value: tMar.householdsReachedM }]} margin={{ top: 2, right: 4, bottom: 2, left: 4 }}>
                         <XAxis dataKey="period" tick={{ fontSize: 10 }} />
-                        <YAxis hide domain={[0, 40]} />
+                        <YAxis hide domain={[0, 50]} />
                         <Bar dataKey="value" fill={COLORS.terrestrial} radius={[2, 2, 0, 0]} />
                         <Tooltip formatter={(v) => [v + ' M', 'Reach']} />
                       </BarChart>
@@ -344,19 +350,19 @@ export default function App() {
                   <div className="overview-card-header">
                     <h4>Cable (DStv + GOtv)</h4>
                     <div className="overview-hero-kpi">
-                      <span className="overview-hero-value">{cFeb.householdsReachedM}</span>
+                      <span className="overview-hero-value">{cMar.householdsReachedM}</span>
                       <span className="overview-hero-unit">M reach</span>
-                      <span className="overview-hero-change positive">↑ {pctChange(cDec.householdsReachedM, cFeb.householdsReachedM)}%</span>
+                      <span className="overview-hero-change positive">↑ {pctChange(cDec.householdsReachedM, cMar.householdsReachedM)}%</span>
                     </div>
                   </div>
                   <div className="overview-metrics">
-                    {overviewMetric('reach', 'Total reach (HH M)', cDec.householdsReachedM, cFeb.householdsReachedM, 'color-cable', (v) => v + ' M')}
-                    {overviewMetric('spots', 'Total spots', cDec.spots, cFeb.spots, 'color-cable')}
-                    {overviewMetric('frequency', 'Avg. frequency', cDec.avgFrequency, cFeb.avgFrequency, 'color-cable', (v) => v.toFixed(1))}
-                    {overviewMetric('grps', 'GRPs', cDec.grps, cFeb.grps, 'color-cable')}
+                    {overviewMetric('reach', 'Total reach (HH M)', cDec.householdsReachedM, cMar.householdsReachedM, 'color-cable', (v) => v + ' M')}
+                    {overviewMetric('spots', 'Total spots', cDec.spots, cMar.spots, 'color-cable')}
+                    {overviewMetric('frequency', 'Avg. frequency', cDec.avgFrequency, cMar.avgFrequency, 'color-cable', (v) => v.toFixed(1))}
+                    {overviewMetric('grps', 'GRPs', cDec.grps, cMar.grps, 'color-cable')}
                   </div>
                   <div className="overview-mini-chart">
-                    <h5>Impacts by channel (Feb)</h5>
+                    <h5>Impacts by channel (Mar)</h5>
                     <ResponsiveContainer width="100%" height={140}>
                       <BarChart data={cableImpactByChannel} layout="vertical" margin={{ left: 50, right: 8, top: 4, bottom: 4 }}>
                         <XAxis type="number" tickFormatter={(v) => v + 'M'} />
@@ -371,9 +377,9 @@ export default function App() {
                   <div className="overview-spark">
                     <span className="overview-spark-label">Reach trend</span>
                     <ResponsiveContainer width="100%" height={36}>
-                      <BarChart data={[{ period: 'Dec/Jan', value: cDec.householdsReachedM }, { period: 'Feb', value: cFeb.householdsReachedM }]} margin={{ top: 2, right: 4, bottom: 2, left: 4 }}>
+                      <BarChart data={[{ period: 'Dec/Jan', value: cDec.householdsReachedM }, { period: 'Feb', value: cFeb.householdsReachedM }, { period: 'Mar', value: cMar.householdsReachedM }]} margin={{ top: 2, right: 4, bottom: 2, left: 4 }}>
                         <XAxis dataKey="period" tick={{ fontSize: 10 }} />
-                        <YAxis hide domain={[0, 40]} />
+                        <YAxis hide domain={[0, 50]} />
                         <Bar dataKey="value" fill={COLORS.gotv} radius={[2, 2, 0, 0]} />
                         <Tooltip formatter={(v) => [v + ' M', 'Reach']} />
                       </BarChart>
@@ -394,7 +400,7 @@ export default function App() {
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={reachCompareData} layout="vertical" margin={{ left: 80, right: 24 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
-                    <XAxis type="number" domain={[0, 40]} tickFormatter={(v) => v + 'M'} />
+                    <XAxis type="number" domain={[0, 50]} tickFormatter={(v) => v + 'M'} />
                     <YAxis type="category" dataKey="name" width={90} />
                     <Tooltip content={<ChartTooltip rows={reachTooltipRows} />} cursor={{ fill: 'rgba(13, 92, 46, 0.08)' }} />
                     <Bar
@@ -494,7 +500,7 @@ export default function App() {
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
                     <XAxis dataKey="period" />
-                    <YAxis domain={[0, 40]} tickFormatter={(v) => v + 'M'} />
+                    <YAxis domain={[0, 50]} tickFormatter={(v) => v + 'M'} />
                     <Tooltip
                       content={({ active, payload, label }) => {
                         if (!active || !payload?.length) return null;
@@ -969,7 +975,7 @@ export default function App() {
 
       <footer className="site-footer">
         <BrandLogos className="footer-logos" />
-        <p className="footer-credit">Data: Funita x OPAY Campaign Reports (Dec/Jan & Feb 2026), OPay DMS Post Campaign. Opay TVC Report.</p>
+        <p className="footer-credit">Data: Funita x OPAY Campaign Reports (Dec/Jan, Feb & Mar 2026), OPay DMS Post Campaign (Feb & Mar 2026). Opay TVC Report.</p>
       </footer>
 
       <DrillDownPanel drillDown={drillDown} onClose={() => setDrillDown(null)} />
