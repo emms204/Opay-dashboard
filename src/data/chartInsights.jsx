@@ -180,4 +180,21 @@ export const INSIGHTS = {
       <p><strong>Planning implication:</strong> keep protecting 22:00–24:00 credibility inventory as a core trust-conversion block while using daytime and primetime to widen exposure.</p>
     </>
   ),
+
+  campaignProgression: (
+    <>
+      <p><strong>How to read this page.</strong> Three periods, two steps. Dec/Jan → Feb is the <em>scale-up step</em>; Feb → Mar is the <em>sustain step</em>. Together they answer a much harder question than start-vs-end alone: <em>is momentum compounding, stabilising, or fading?</em></p>
+      <p><strong>Top-level read.</strong></p>
+      <ul>
+        <li><strong>Terrestrial reach:</strong> 29.6M → 41.0M → 45.0M — net +52%. Step 2 is smaller than step 1, which is expected as the campaign approaches the national terrestrial ceiling. This is <em>scale maturity</em>, not softening.</li>
+        <li><strong>Cable reach:</strong> 20.1M → 21.2M → 22.1M — net +10%. Steady, deliberate growth inside a subscription universe that cannot expand as quickly as FTA.</li>
+        <li><strong>Frequency:</strong> terrestrial 9.2× → 13.1× → 20.1× and cable 7.0× → 9.9× → 10.7×. Both platforms are <strong>accelerating</strong> on repetition — the single most important signal for a trust-building fintech message.</li>
+        <li><strong>Cable spots vs frequency:</strong> 750 → 871 → 777 spots, yet frequency kept rising. March delivered <em>higher repetition with fewer placements</em> — a clear sign of smarter scheduling and better audience overlap inside premium environments.</li>
+        <li><strong>Terrestrial TVR:</strong> 2,175 → 3,487 → 4,134 — consistent step-up. The premium 67% share of spend continues to earn its premium.</li>
+      </ul>
+      <p><strong>About the toggle.</strong> Raw totals are the default because that is what was actually delivered to market — the executive view. Switching to <em>Monthly-normalized</em> divides Dec/Jan rate metrics (spots, TVR, GRPs) by 2 so all three periods are compared on a per-month basis. Reach and frequency are <em>state</em> metrics, not cumulative, so they never get normalized.</p>
+      <p><strong>About the tags.</strong> <em>Accelerating</em> means the second step is materially stronger than the first (&gt;5pp). <em>Softening</em> means still positive but clearly weaker (&gt;5pp lower). <em>Declining</em> means the second step turned negative. <em>Stable</em> is everything inside that band — the healthiest outcome when already at national scale.</p>
+      <p><strong>Executive takeaway.</strong> Dec/Jan built the base, February proved the model, March validated it as durable. The campaign is moving from a launch posture into a sustain posture — the right regime for a quarter-long flight building long-term mental availability for Payment Shield.</p>
+    </>
+  ),
 };

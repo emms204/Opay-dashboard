@@ -61,6 +61,7 @@ const COLORS = {
 
 const VIEWS = [
   { id: 'campaign-overview', label: 'Campaign Overview' },
+  { id: 'campaign-progression', label: 'Campaign Progression' },
   { id: 'reach', label: 'Reach & Comparison' },
   { id: 'growth', label: 'Growth Over Time' },
   { id: 'dstv-gotv', label: 'DStv vs GOtv' },
@@ -83,6 +84,21 @@ function pctChange(prev, curr) {
 function pctChangeNum(prev, curr) {
   if (prev == null || prev === 0) return 0;
   return ((curr - prev) / prev) * 100;
+}
+
+/**
+ * Classify a three-period trajectory using step1 (p1→p2) and step2 (p2→p3) % changes.
+ * Thresholds prevent small fluctuations from being mis-labeled.
+ *   Declining    : step2 < -2%
+ *   Accelerating : step2 > step1 + 5 (and positive)
+ *   Softening    : step2 positive but < step1 - 5
+ *   Stable       : within ±5 band of each other
+ */
+function classifyTrajectory(step1, step2) {
+  if (step2 < -2) return { label: 'Declining', tone: 'declining' };
+  if (step2 > step1 + 5) return { label: 'Accelerating', tone: 'accelerating' };
+  if (step2 >= 0 && step2 < step1 - 5) return { label: 'Softening', tone: 'softening' };
+  return { label: 'Stable', tone: 'stable' };
 }
 
 const OVERVIEW_ICONS = {
@@ -131,6 +147,7 @@ export default function App() {
   const [programSortKey, setProgramSortKey] = useState('totalTVR');
   const [programSortAsc, setProgramSortAsc] = useState(false);
   const [selectedAudienceChannel, setSelectedAudienceChannel] = useState('cnn');
+  const [progressionNormalized, setProgressionNormalized] = useState(false);
 
   const c = period === 'decjan' ? cable.decJan : period === 'feb' ? cable.feb : cable.mar;
   const t = period === 'decjan' ? terrestrial.decJan : period === 'feb' ? terrestrial.feb : terrestrial.mar;
@@ -241,7 +258,7 @@ export default function App() {
         <BrandLogos className="header-logos" />
         <p className="header-eyebrow">Opay Terrestrial Cable Integrated Marketing</p>
         <h1 className="header-title">Opay TVC Report</h1>
-        {view !== 'growth' && view !== 'campaign-overview' && (
+        {view !== 'growth' && view !== 'campaign-overview' && view !== 'campaign-progression' && (
           <div className="header-controls">
             <label className="granularity-label">
               Period
@@ -388,6 +405,219 @@ export default function App() {
                   <InsightAccordion>{INSIGHTS.campaignOverviewCable}</InsightAccordion>
                 </div>
               </div>
+            </div>
+          );
+        })()}
+
+        {view === 'campaign-progression' && (() => {
+          const normalized = progressionNormalized;
+          // Dec/Jan covers ~2 months, Feb and Mar are single months.
+          const norm = (val, periodKey, isRate) => {
+            if (!isRate || !normalized) return val;
+            if (periodKey === 'decjan') return val / 2;
+            return val;
+          };
+
+          const fmtValue = (v, unit) => {
+            if (v == null || Number.isNaN(v)) return '—';
+            if (unit === 'M') return v.toFixed(1) + 'M';
+            if (unit === 'x') return v.toFixed(1) + '×';
+            if (Math.abs(v) >= 1000) return v.toLocaleString(undefined, { maximumFractionDigits: 0 });
+            return v.toFixed(1);
+          };
+
+          const fmtPct = (v) => {
+            const sign = v >= 0 ? '+' : '−';
+            return `${sign}${Math.abs(v).toFixed(1)}%`;
+          };
+
+          const kpis = [
+            { id: 'terr-reach', platform: 'terrestrial', label: 'Terrestrial HH reach', unit: 'M', icon: OVERVIEW_ICONS.reach, isRate: false,
+              decjan: terrestrial.decJan.householdsReachedM, feb: terrestrial.feb.householdsReachedM, mar: terrestrial.mar.householdsReachedM },
+            { id: 'cable-reach', platform: 'cable', label: 'Cable HH reach', unit: 'M', icon: OVERVIEW_ICONS.reach, isRate: false,
+              decjan: cable.decJan.householdsReachedM, feb: cable.feb.householdsReachedM, mar: cable.mar.householdsReachedM },
+            { id: 'terr-spots', platform: 'terrestrial', label: 'Terrestrial spots', unit: '', icon: OVERVIEW_ICONS.spots, isRate: true,
+              decjan: terrestrial.decJan.spots, feb: terrestrial.feb.spots, mar: terrestrial.mar.spots },
+            { id: 'cable-spots', platform: 'cable', label: 'Cable spots', unit: '', icon: OVERVIEW_ICONS.spots, isRate: true,
+              decjan: cable.decJan.spots, feb: cable.feb.spots, mar: cable.mar.spots },
+            { id: 'terr-freq', platform: 'terrestrial', label: 'Terrestrial avg. frequency', unit: 'x', icon: OVERVIEW_ICONS.frequency, isRate: false,
+              decjan: terrestrial.decJan.avgFrequency, feb: terrestrial.feb.avgFrequency, mar: terrestrial.mar.avgFrequency },
+            { id: 'cable-freq', platform: 'cable', label: 'Cable avg. frequency', unit: 'x', icon: OVERVIEW_ICONS.frequency, isRate: false,
+              decjan: cable.decJan.avgFrequency, feb: cable.feb.avgFrequency, mar: cable.mar.avgFrequency },
+            { id: 'terr-tvr', platform: 'terrestrial', label: 'Terrestrial total TVR', unit: '', icon: OVERVIEW_ICONS.tvr, isRate: true,
+              decjan: terrestrial.decJan.totalTVR, feb: terrestrial.feb.totalTVR, mar: terrestrial.mar.totalTVR },
+            { id: 'cable-grps', platform: 'cable', label: 'Cable GRPs', unit: '', icon: OVERVIEW_ICONS.grps, isRate: true,
+              decjan: cable.decJan.grps, feb: cable.feb.grps, mar: cable.mar.grps },
+          ];
+
+          const buildCard = (k) => {
+            const dec = norm(k.decjan, 'decjan', k.isRate);
+            const feb = k.feb;
+            const mar = k.mar;
+            const step1 = pctChangeNum(dec, feb);
+            const step2 = pctChangeNum(feb, mar);
+            const net = pctChangeNum(dec, mar);
+            const tag = classifyTrajectory(step1, step2);
+            const color = k.platform === 'terrestrial' ? COLORS.terrestrial : COLORS.cable;
+            const data = [
+              { period: 'Dec/Jan', value: dec },
+              { period: 'Feb', value: feb },
+              { period: 'Mar', value: mar },
+            ];
+            return (
+              <div key={k.id} className={`progression-card progression-card--${k.platform}`}>
+                <div className="progression-card-head">
+                  <span className="progression-card-icon" aria-hidden="true">{k.icon}</span>
+                  <span className="progression-card-label">{k.label}</span>
+                  <span className={`progression-tag progression-tag--${tag.tone}`}>{tag.label}</span>
+                </div>
+                <div className="progression-values">
+                  <div className="progression-value">
+                    <span className="progression-value-period">Dec/Jan{k.isRate && normalized ? ' / mo' : ''}</span>
+                    <span className="progression-value-num">{fmtValue(dec, k.unit)}</span>
+                  </div>
+                  <span className="progression-sep" aria-hidden="true">→</span>
+                  <div className="progression-value">
+                    <span className="progression-value-period">Feb</span>
+                    <span className="progression-value-num">{fmtValue(feb, k.unit)}</span>
+                  </div>
+                  <span className="progression-sep" aria-hidden="true">→</span>
+                  <div className="progression-value">
+                    <span className="progression-value-period">Mar</span>
+                    <span className="progression-value-num">{fmtValue(mar, k.unit)}</span>
+                  </div>
+                </div>
+                <div className="progression-chart">
+                  <ResponsiveContainer width="100%" height={50}>
+                    <BarChart data={data} margin={{ top: 2, right: 4, bottom: 0, left: 4 }}>
+                      <XAxis dataKey="period" tick={{ fontSize: 9, fill: '#6b7280' }} axisLine={false} tickLine={false} />
+                      <YAxis hide />
+                      <Bar dataKey="value" fill={color} radius={[3, 3, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="progression-deltas">
+                  <span className="progression-delta">
+                    <small>Step 1</small>
+                    <span className={step1 >= 0 ? 'positive' : 'negative'}>{fmtPct(step1)}</span>
+                  </span>
+                  <span className="progression-delta">
+                    <small>Step 2</small>
+                    <span className={step2 >= 0 ? 'positive' : 'negative'}>{fmtPct(step2)}</span>
+                  </span>
+                  <span className="progression-delta progression-delta--net">
+                    <small>Net</small>
+                    <span className={net >= 0 ? 'positive' : 'negative'}>{fmtPct(net)}</span>
+                  </span>
+                </div>
+              </div>
+            );
+          };
+
+          const buildChannelSpark = (label, data, color, mar) => {
+            const step1 = pctChangeNum(data[0].tvr, data[1].tvr);
+            const step2 = pctChangeNum(data[1].tvr, data[2].tvr);
+            const tag = classifyTrajectory(step1, step2);
+            return (
+              <li key={label} className="progression-channel-row">
+                <span className="progression-channel-name">{label}</span>
+                <div className="progression-channel-spark">
+                  <ResponsiveContainer width="100%" height={30}>
+                    <LineChart data={data} margin={{ top: 4, bottom: 4, left: 2, right: 2 }}>
+                      <Line type="monotone" dataKey="tvr" stroke={color} strokeWidth={2} dot={{ r: 2, fill: color }} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+                <span className="progression-channel-mar">{mar.toFixed(0)} TVR</span>
+                <span className={`progression-tag progression-tag--${tag.tone}`}>{tag.label}</span>
+              </li>
+            );
+          };
+
+          const topTerrTraj = [...terrestrialChannelsMar]
+            .sort((a, b) => b.tvr - a.tvr)
+            .slice(0, 5)
+            .map((c) => {
+              const dec = terrestrialChannelsDecJan.find((x) => x.channel === c.channel);
+              const feb = terrestrialChannelsFeb.find((x) => x.channel === c.channel);
+              const decVal = norm(dec?.tvr ?? 0, 'decjan', true);
+              return {
+                channel: c.channel,
+                data: [
+                  { period: 'Dec/Jan', tvr: decVal },
+                  { period: 'Feb', tvr: feb?.tvr ?? 0 },
+                  { period: 'Mar', tvr: c.tvr },
+                ],
+                mar: c.tvr,
+              };
+            });
+
+          const topCableTraj = [...cableChannelsMar]
+            .sort((a, b) => b.tvr - a.tvr)
+            .slice(0, 5)
+            .map((c) => {
+              const dec = cableChannelsDecJan.find((x) => x.channel === c.channel && x.platform === c.platform);
+              const feb = cableChannelsFeb.find((x) => x.channel === c.channel && x.platform === c.platform);
+              const decVal = norm(dec?.tvr ?? 0, 'decjan', true);
+              return {
+                channel: `${c.platform} ${c.channel}`,
+                platform: c.platform,
+                data: [
+                  { period: 'Dec/Jan', tvr: decVal },
+                  { period: 'Feb', tvr: feb?.tvr ?? 0 },
+                  { period: 'Mar', tvr: c.tvr },
+                ],
+                mar: c.tvr,
+              };
+            });
+
+          return (
+            <div className="view-content-stack progression-view">
+              <div className="progression-header">
+                <div className="progression-period-strip" aria-label="Period progression">
+                  <span className="progression-period-chip">Dec/Jan</span>
+                  <span className="progression-period-arrow" aria-hidden="true">→</span>
+                  <span className="progression-period-chip">Feb</span>
+                  <span className="progression-period-arrow" aria-hidden="true">→</span>
+                  <span className="progression-period-chip">Mar</span>
+                </div>
+                <label className="progression-toggle">
+                  <input
+                    type="checkbox"
+                    checked={normalized}
+                    onChange={(e) => setProgressionNormalized(e.target.checked)}
+                  />
+                  <span>Monthly-normalized{normalized ? ' · ON' : ''}</span>
+                </label>
+              </div>
+              <p className="progression-subtitle">
+                {normalized
+                  ? 'Rate metrics (spots, TVR, GRPs) are divided by 2 for Dec/Jan to put all three periods on a per-month basis. State metrics (household reach, frequency) are unchanged.'
+                  : 'Raw totals as delivered. Dec/Jan covers ~2 months while Feb and Mar are single months — toggle "Monthly-normalized" for pace-based comparison.'}
+              </p>
+
+              <h3 className="chart-title progression-section-heading">KPI progression</h3>
+              <div className="progression-grid">
+                {kpis.map(buildCard)}
+              </div>
+
+              <h3 className="chart-title progression-section-heading">Top channel trajectory — by March TVR</h3>
+              <div className="progression-channels">
+                <div className="progression-channel-block">
+                  <h4>Terrestrial · top 5</h4>
+                  <ul className="progression-channel-list">
+                    {topTerrTraj.map((ch) => buildChannelSpark(ch.channel, ch.data, COLORS.terrestrial, ch.mar))}
+                  </ul>
+                </div>
+                <div className="progression-channel-block">
+                  <h4>Cable · top 5</h4>
+                  <ul className="progression-channel-list">
+                    {topCableTraj.map((ch) => buildChannelSpark(ch.channel, ch.data, ch.platform === 'DStv' ? COLORS.dstv : COLORS.gotv, ch.mar))}
+                  </ul>
+                </div>
+              </div>
+
+              <InsightAccordion>{INSIGHTS.campaignProgression}</InsightAccordion>
             </div>
           );
         })()}
