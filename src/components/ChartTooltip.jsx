@@ -8,7 +8,7 @@ export function ChartTooltip({ active, payload, label, rows }) {
   const raw = payload[0]?.payload;
   const list = rows
     ? rows(raw, label)
-    : defaultRows(payload, label);
+    : defaultRows(payload);
 
   if (!list?.length) return null;
 
@@ -27,7 +27,7 @@ export function ChartTooltip({ active, payload, label, rows }) {
   );
 }
 
-function defaultRows(payload, label) {
+function defaultRows(payload) {
   const p = payload[0];
   const name = p?.name || '';
   const value = p?.value;

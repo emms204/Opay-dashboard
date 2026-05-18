@@ -6,24 +6,28 @@ export const terrestrial = {
   decJan: { householdsReachedM: 29.6, spots: 514, avgFrequency: 9.2, totalTVR: 2175.4 },
   feb: { householdsReachedM: 41, spots: 1020, avgFrequency: 13.1, totalTVR: 3487.3 },
   mar: { householdsReachedM: 45, spots: 1110, avgFrequency: 20.1, totalTVR: 4133.7 },
+  apr: { householdsReachedM: 47, spots: 1006, avgFrequency: 23.1, totalTVR: 4752.95 },
 };
 
 export const cable = {
   decJan: { householdsReachedM: 20.1, spots: 750, avgFrequency: 7.0, grps: 2595 },
   feb: { householdsReachedM: 21.2, spots: 871, avgFrequency: 9.9, grps: 2739 },
   mar: { householdsReachedM: 22.1, spots: 777, avgFrequency: 10.7, grps: 2668 },
+  apr: { householdsReachedM: 21.5, spots: 692, avgFrequency: 8.8, grps: 2564 },
 };
 
 export const dstv = {
   decJan: { totalTVR: 1830.2, impacts: 8361264, insertions: 403, avgFrequency: 7.5, householdsReachedM: 8.4 },
   feb: { totalTVR: 1779.7, impacts: 10744050, insertions: 574, avgFrequency: 11.4, householdsReachedM: 10.7 },
   mar: { totalTVR: 2051.7, impacts: 11168044, insertions: 489, avgFrequency: 13.8, householdsReachedM: 11.2 },
+  apr: { totalTVR: 1911.8, impacts: 10208321, insertions: 424, avgFrequency: 10.2, householdsReachedM: 10.2 },
 };
 
 export const gotv = {
   decJan: { totalTVR: 1665.8, impacts: 10347466, insertions: 370, avgFrequency: 6.5, householdsReachedM: 10.4 },
   feb: { totalTVR: 1080.3, impacts: 10527443, insertions: 297, avgFrequency: 8.4, householdsReachedM: 10.5 },
   mar: { totalTVR: 1344.7, impacts: 10889916, insertions: 288, avgFrequency: 6.1, householdsReachedM: 10.9 },
+  apr: { totalTVR: 1441.5, impacts: 11323758, insertions: 268, avgFrequency: 7.3, householdsReachedM: 11.3 },
 };
 
 export const terrestrialChannelsDecJan = [
@@ -74,6 +78,23 @@ export const terrestrialChannelsMar = [
   { channel: "SuperSport Motorsport", tvr: 120.4, impacts: 285771 },
   { channel: "SuperSport Golf", tvr: 106.6, impacts: 115936 },
   { channel: "SuperSport Tennis", tvr: 93.5, impacts: 110224 },
+];
+
+export const terrestrialChannelsApr = [
+  { channel: "NTA Network", tvr: 951.28, impacts: 18086938 },
+  { channel: "Arise News", tvr: 636.18, impacts: 9616420 },
+  { channel: "Channels TV", tvr: 541.075, impacts: 5508637 },
+  { channel: "CNN", tvr: 510.255, impacts: 2258854 },
+  { channel: "AIT Network", tvr: 387.09, impacts: 2296040 },
+  { channel: "TVC", tvr: 289.11, impacts: 2275808 },
+  { channel: "Zee World", tvr: 281.635, impacts: 5996861 },
+  { channel: "ROK2", tvr: 223.675, impacts: 1516740 },
+  { channel: "Arewa TV", tvr: 193.66, impacts: 1793794 },
+  { channel: "ROK", tvr: 185.495, impacts: 1098764 },
+  { channel: "SuperSport Blitz", tvr: 184.92, impacts: 750948 },
+  { channel: "SuperSport Motorsport", tvr: 138.46, impacts: 328637 },
+  { channel: "SuperSport Golf", tvr: 122.59, impacts: 133326 },
+  { channel: "SuperSport Tennis", tvr: 107.525, impacts: 126769 },
 ];
 
 export const cableChannelsDecJan = [
@@ -130,11 +151,29 @@ export const cableChannelsMar = [
   { platform: "GOtv", channel: "Africa Magic Family", tvr: 101.5, impacts: 1643705 },
 ];
 
+export const cableChannelsApr = [
+  { platform: "GOtv", channel: "Africa Magic Epic", tvr: 527.8, impacts: 4212475 },
+  { platform: "DStv", channel: "Africa Magic Epic", tvr: 513.7, impacts: 2865811 },
+  { platform: "DStv", channel: "Africa Magic Yoruba", tvr: 315.2, impacts: 2135242 },
+  { platform: "DStv", channel: "Africa Magic Family", tvr: 309.1, impacts: 1132242 },
+  { platform: "GOtv", channel: "SuperSport Football", tvr: 298.2, impacts: 706061 },
+  { platform: "GOtv", channel: "Africa Magic Yoruba", tvr: 255.1, impacts: 3601230 },
+  { platform: "DStv", channel: "Telemundo", tvr: 183.9, impacts: 940159 },
+  { platform: "DStv", channel: "Trace Naija", tvr: 178.8, impacts: 640439 },
+  { platform: "DStv", channel: "Africa Magic Showcase", tvr: 166.8, impacts: 1951563 },
+  { platform: "GOtv", channel: "Africa Magic Family", tvr: 154.2, impacts: 1665662 },
+  { platform: "DStv", channel: "SuperSport EPL", tvr: 131.6, impacts: 542582 },
+  { platform: "DStv", channel: "Africa Magic Hausa", tvr: 112.7, impacts: 282655 },
+  { platform: "GOtv", channel: "Telemundo", tvr: 103.9, impacts: 591748 },
+  { platform: "GOtv", channel: "Africa Magic Hausa", tvr: 102.3, impacts: 546582 },
+];
+
 /** For period-over-period line/area charts */
 export const periodTimeline = [
   { period: "Dec/Jan", cableHH: 20.1, terrestrialHH: 29.6, cableSpots: 750, terrestrialSpots: 514, cableFreq: 7.0, terrestrialFreq: 9.2 },
   { period: "Feb", cableHH: 21.2, terrestrialHH: 41, cableSpots: 871, terrestrialSpots: 1020, cableFreq: 9.9, terrestrialFreq: 13.1 },
   { period: "Mar", cableHH: 22.1, terrestrialHH: 45, cableSpots: 777, terrestrialSpots: 1110, cableFreq: 10.7, terrestrialFreq: 20.1 },
+  { period: "Apr", cableHH: 21.5, terrestrialHH: 47, cableSpots: 692, terrestrialSpots: 1006, cableFreq: 8.8, terrestrialFreq: 23.1 },
 ];
 
 /** Terrestrial campaign performance by program (Funita Campaign Performance Report) */
@@ -180,6 +219,27 @@ export const terrestrialProgramsMar = [
   { channel: "SuperSport Golf", program: "TACTICAL ASSOCIATION", totalTVR: 106.6, impacts: 115936, insertions: 60, avgFrequency: 6.1 },
 ];
 
+export const terrestrialProgramsApr = [
+  { channel: "Arise News", program: "THE MORNING SHOW (Ayo Mairo - Ese, Rueben & Rufai)", totalTVR: 636.18, impacts: 9616420, insertions: 23, avgFrequency: 8.6 },
+  { channel: "Arewa TV", program: "ROS", totalTVR: 193.66, impacts: 1793794, insertions: 31, avgFrequency: 2.9 },
+  { channel: "AIT Network", program: "KAKAKI", totalTVR: 164.335, impacts: 1194404, insertions: 22, avgFrequency: 4.3 },
+  { channel: "AIT Network", program: "NEWS @ 8PM", totalTVR: 222.755, impacts: 1101636, insertions: 20, avgFrequency: 4.7 },
+  { channel: "Channels TV", program: "POLITICS TODAY (Seun Okinbaloye)", totalTVR: 289.34, impacts: 1246865, insertions: 20, avgFrequency: 7.7 },
+  { channel: "Channels TV", program: "NEWS @ 10PM", totalTVR: 251.735, impacts: 4261772, insertions: 20, avgFrequency: 3.9 },
+  { channel: "NTA Network", program: "NEWS @ 9PM", totalTVR: 466.67, impacts: 8872758, insertions: 20, avgFrequency: 8.5 },
+  { channel: "NTA Network", program: "NEWSLINE", totalTVR: 484.61, impacts: 9214180, insertions: 20, avgFrequency: 10.3 },
+  { channel: "TVC", program: "YOUR VIEW", totalTVR: 139.84, impacts: 1233772, insertions: 28, avgFrequency: 5.1 },
+  { channel: "TVC", program: "NEWS @ 10PM", totalTVR: 149.27, impacts: 1042036, insertions: 30, avgFrequency: 4.9 },
+  { channel: "Zee World", program: "8pm - 9pm Belt", totalTVR: 281.635, impacts: 5996861, insertions: 124, avgFrequency: 7.2 },
+  { channel: "ROK", program: "TACTICAL SPONSORSHIP", totalTVR: 185.495, impacts: 1098764, insertions: 118, avgFrequency: 7.4 },
+  { channel: "ROK2", program: "TACTICAL SPONSORSHIP", totalTVR: 223.675, impacts: 1516740, insertions: 110, avgFrequency: 7.7 },
+  { channel: "CNN", program: "TACTICAL ASSOCIATION", totalTVR: 510.255, impacts: 2258854, insertions: 200, avgFrequency: 7.9 },
+  { channel: "SuperSport Blitz", program: "TACTICAL ASSOCIATION", totalTVR: 184.92, impacts: 750948, insertions: 60, avgFrequency: 5.2 },
+  { channel: "SuperSport Tennis", program: "TACTICAL ASSOCIATION", totalTVR: 107.525, impacts: 126769, insertions: 60, avgFrequency: 7.4 },
+  { channel: "SuperSport Motorsport", program: "TACTICAL ASSOCIATION", totalTVR: 138.46, impacts: 328637, insertions: 60, avgFrequency: 7.3 },
+  { channel: "SuperSport Golf", program: "TACTICAL ASSOCIATION", totalTVR: 122.59, impacts: 133326, insertions: 40, avgFrequency: 7.0 },
+];
+
 export const terrestrialProgramsDecJan = [
   { channel: "Arise News", program: "THE MORNING SHOW (Ayo Mairo - Ese, Rueben & Rufai)", totalTVR: 325.1, impacts: 4859162, insertions: 39, avgFrequency: 5.7 },
   { channel: "Arewa TV", program: "ROS", totalTVR: 116.3, impacts: 996425, insertions: 42, avgFrequency: 2.4 },
@@ -217,27 +277,27 @@ export const cnnAgeGroups = [
 
 /** CNN audience flow 06:00–24:00 (Mon-Fri values from report) */
 export const cnnAudienceFlowByHour = [
-  { timeSlot: "06:00", viewership: 40 },
-  { timeSlot: "07:00", viewership: 35 },
-  { timeSlot: "08:00", viewership: 40 },
-  { timeSlot: "09:00", viewership: 45 },
-  { timeSlot: "10:00", viewership: 50 },
-  { timeSlot: "11:00", viewership: 55 },
-  { timeSlot: "12:00", viewership: 58 },
-  { timeSlot: "13:00", viewership: 55 },
-  { timeSlot: "14:00", viewership: 52 },
-  { timeSlot: "15:00", viewership: 55 },
-  { timeSlot: "16:00", viewership: 52 },
-  { timeSlot: "17:00", viewership: 55 },
-  { timeSlot: "18:00", viewership: 60 },
-  { timeSlot: "19:00", viewership: 65 },
-  { timeSlot: "20:00", viewership: 58 },
-  { timeSlot: "21:00", viewership: 65 },
-  { timeSlot: "22:00", viewership: 75 },
-  { timeSlot: "23:00", viewership: 72 },
+  { timeSlot: "06:00", viewership: 80 },
+  { timeSlot: "07:00", viewership: 75 },
+  { timeSlot: "08:00", viewership: 75 },
+  { timeSlot: "09:00", viewership: 80 },
+  { timeSlot: "10:00", viewership: 80 },
+  { timeSlot: "11:00", viewership: 85 },
+  { timeSlot: "12:00", viewership: 85 },
+  { timeSlot: "13:00", viewership: 80 },
+  { timeSlot: "14:00", viewership: 80 },
+  { timeSlot: "15:00", viewership: 85 },
+  { timeSlot: "16:00", viewership: 80 },
+  { timeSlot: "17:00", viewership: 75 },
+  { timeSlot: "18:00", viewership: 80 },
+  { timeSlot: "19:00", viewership: 90 },
+  { timeSlot: "20:00", viewership: 85 },
+  { timeSlot: "21:00", viewership: 95 },
+  { timeSlot: "22:00", viewership: 95 },
+  { timeSlot: "23:00", viewership: 90 },
 ];
 
-/** All channels with audience demographics (Funita Feb report). Each has id, name, gender, ageGroups, audienceFlow (numeric by hour; null if text-only). */
+/** All channels with audience demographics (Funita April report). Each has id, name, gender, ageGroups, audienceFlow (numeric by hour; null if text-only). */
 export const audienceChannels = [
   {
     id: "cnn",
@@ -255,24 +315,24 @@ export const audienceChannels = [
       { ageGroup: "Age 65+", percentage: 2 },
     ],
     audienceFlow: [
-      { timeSlot: "06:00", value: 40 },
-      { timeSlot: "07:00", value: 35 },
-      { timeSlot: "08:00", value: 40 },
-      { timeSlot: "09:00", value: 45 },
-      { timeSlot: "10:00", value: 50 },
-      { timeSlot: "11:00", value: 55 },
-      { timeSlot: "12:00", value: 58 },
-      { timeSlot: "13:00", value: 55 },
-      { timeSlot: "14:00", value: 52 },
-      { timeSlot: "15:00", value: 55 },
-      { timeSlot: "16:00", value: 52 },
-      { timeSlot: "17:00", value: 55 },
-      { timeSlot: "18:00", value: 60 },
-      { timeSlot: "19:00", value: 65 },
-      { timeSlot: "20:00", value: 58 },
-      { timeSlot: "21:00", value: 65 },
-      { timeSlot: "22:00", value: 75 },
-      { timeSlot: "23:00", value: 72 },
+      { timeSlot: "06:00", value: 80 },
+      { timeSlot: "07:00", value: 75 },
+      { timeSlot: "08:00", value: 75 },
+      { timeSlot: "09:00", value: 80 },
+      { timeSlot: "10:00", value: 80 },
+      { timeSlot: "11:00", value: 85 },
+      { timeSlot: "12:00", value: 85 },
+      { timeSlot: "13:00", value: 80 },
+      { timeSlot: "14:00", value: 80 },
+      { timeSlot: "15:00", value: 85 },
+      { timeSlot: "16:00", value: 80 },
+      { timeSlot: "17:00", value: 75 },
+      { timeSlot: "18:00", value: 80 },
+      { timeSlot: "19:00", value: 90 },
+      { timeSlot: "20:00", value: 85 },
+      { timeSlot: "21:00", value: 95 },
+      { timeSlot: "22:00", value: 95 },
+      { timeSlot: "23:00", value: 90 },
     ],
   },
   {
@@ -292,23 +352,23 @@ export const audienceChannels = [
     ],
     audienceFlow: [
       { timeSlot: "06:00", value: 45 },
-      { timeSlot: "07:00", value: 42 },
-      { timeSlot: "08:00", value: 40 },
-      { timeSlot: "09:00", value: 38 },
-      { timeSlot: "10:00", value: 35 },
-      { timeSlot: "11:00", value: 38 },
-      { timeSlot: "12:00", value: 35 },
-      { timeSlot: "13:00", value: 30 },
-      { timeSlot: "14:00", value: 28 },
-      { timeSlot: "15:00", value: 27 },
-      { timeSlot: "16:00", value: 28 },
-      { timeSlot: "17:00", value: 30 },
-      { timeSlot: "18:00", value: 33 },
+      { timeSlot: "07:00", value: 40 },
+      { timeSlot: "08:00", value: 38 },
+      { timeSlot: "09:00", value: 32 },
+      { timeSlot: "10:00", value: 25 },
+      { timeSlot: "11:00", value: 32 },
+      { timeSlot: "12:00", value: 25 },
+      { timeSlot: "13:00", value: 18 },
+      { timeSlot: "14:00", value: 16 },
+      { timeSlot: "15:00", value: 15 },
+      { timeSlot: "16:00", value: 20 },
+      { timeSlot: "17:00", value: 25 },
+      { timeSlot: "18:00", value: 30 },
       { timeSlot: "19:00", value: 42 },
-      { timeSlot: "20:00", value: 38 },
-      { timeSlot: "21:00", value: 35 },
+      { timeSlot: "20:00", value: 35 },
+      { timeSlot: "21:00", value: 32 },
       { timeSlot: "22:00", value: 65 },
-      { timeSlot: "23:00", value: 55 },
+      { timeSlot: "23:00", value: 52 },
     ],
   },
   {
@@ -326,7 +386,26 @@ export const audienceChannels = [
       { ageGroup: "Age 55-64", percentage: 1 },
       { ageGroup: "Age 65+", percentage: 0 },
     ],
-    audienceFlow: null, // report has text-only (Baseline, Peak, etc.)
+    audienceFlow: [
+      { timeSlot: "06:00", value: 25 },
+      { timeSlot: "07:00", value: 30 },
+      { timeSlot: "08:00", value: 35 },
+      { timeSlot: "09:00", value: 40 },
+      { timeSlot: "10:00", value: 38 },
+      { timeSlot: "11:00", value: 40 },
+      { timeSlot: "12:00", value: 42 },
+      { timeSlot: "13:00", value: 41 },
+      { timeSlot: "14:00", value: 38 },
+      { timeSlot: "15:00", value: 40 },
+      { timeSlot: "16:00", value: 42 },
+      { timeSlot: "17:00", value: 41 },
+      { timeSlot: "18:00", value: 45 },
+      { timeSlot: "19:00", value: 48 },
+      { timeSlot: "20:00", value: 85 },
+      { timeSlot: "21:00", value: 90 },
+      { timeSlot: "22:00", value: 55 },
+      { timeSlot: "23:00", value: 45 },
+    ],
   },
   {
     id: "trace",
@@ -344,24 +423,24 @@ export const audienceChannels = [
       { ageGroup: "Age 65+", percentage: 0 },
     ],
     audienceFlow: [
-      { timeSlot: "06:00", value: 3.0 },
-      { timeSlot: "07:00", value: 3.5 },
-      { timeSlot: "08:00", value: 3.5 },
-      { timeSlot: "09:00", value: 4.0 },
-      { timeSlot: "10:00", value: 6.0 },
-      { timeSlot: "11:00", value: 5.5 },
-      { timeSlot: "12:00", value: 5.0 },
-      { timeSlot: "13:00", value: 5.0 },
-      { timeSlot: "14:00", value: 3.0 },
-      { timeSlot: "15:00", value: 3.5 },
-      { timeSlot: "16:00", value: 3.5 },
-      { timeSlot: "17:00", value: 4.0 },
-      { timeSlot: "18:00", value: 5.5 },
-      { timeSlot: "19:00", value: 4.5 },
-      { timeSlot: "20:00", value: 4.5 },
-      { timeSlot: "21:00", value: 4.0 },
-      { timeSlot: "22:00", value: 3.5 },
-      { timeSlot: "23:00", value: 3.5 },
+      { timeSlot: "06:00", value: 35 },
+      { timeSlot: "07:00", value: 50 },
+      { timeSlot: "08:00", value: 50 },
+      { timeSlot: "09:00", value: 55 },
+      { timeSlot: "10:00", value: 75 },
+      { timeSlot: "11:00", value: 70 },
+      { timeSlot: "12:00", value: 60 },
+      { timeSlot: "13:00", value: 50 },
+      { timeSlot: "14:00", value: 60 },
+      { timeSlot: "15:00", value: 65 },
+      { timeSlot: "16:00", value: 75 },
+      { timeSlot: "17:00", value: 65 },
+      { timeSlot: "18:00", value: 65 },
+      { timeSlot: "19:00", value: 80 },
+      { timeSlot: "20:00", value: 60 },
+      { timeSlot: "21:00", value: 50 },
+      { timeSlot: "22:00", value: 55 },
+      { timeSlot: "23:00", value: 45 },
     ],
   },
   {
@@ -381,23 +460,23 @@ export const audienceChannels = [
     ],
     audienceFlow: [
       { timeSlot: "06:00", value: 10 },
-      { timeSlot: "07:00", value: 11 },
-      { timeSlot: "08:00", value: 12 },
+      { timeSlot: "07:00", value: 12 },
+      { timeSlot: "08:00", value: 13 },
       { timeSlot: "09:00", value: 13 },
-      { timeSlot: "10:00", value: 14 },
-      { timeSlot: "11:00", value: 18 },
-      { timeSlot: "12:00", value: 25 },
-      { timeSlot: "13:00", value: 32 },
-      { timeSlot: "14:00", value: 38 },
-      { timeSlot: "15:00", value: 42 },
-      { timeSlot: "16:00", value: 48 },
-      { timeSlot: "17:00", value: 65 },
-      { timeSlot: "18:00", value: 65 },
-      { timeSlot: "19:00", value: 85 },
-      { timeSlot: "20:00", value: 100 },
-      { timeSlot: "21:00", value: 80 },
-      { timeSlot: "22:00", value: 60 },
-      { timeSlot: "23:00", value: 40 },
+      { timeSlot: "10:00", value: 13 },
+      { timeSlot: "11:00", value: 15 },
+      { timeSlot: "12:00", value: 20 },
+      { timeSlot: "13:00", value: 25 },
+      { timeSlot: "14:00", value: 30 },
+      { timeSlot: "15:00", value: 35 },
+      { timeSlot: "16:00", value: 38 },
+      { timeSlot: "17:00", value: 45 },
+      { timeSlot: "18:00", value: 52 },
+      { timeSlot: "19:00", value: 52 },
+      { timeSlot: "20:00", value: 75 },
+      { timeSlot: "21:00", value: 85 },
+      { timeSlot: "22:00", value: 55 },
+      { timeSlot: "23:00", value: 30 },
     ],
   },
   {
@@ -416,20 +495,20 @@ export const audienceChannels = [
       { ageGroup: "Age 65+", percentage: 0 },
     ],
     audienceFlow: [
-      { timeSlot: "06:00", value: 4 },
-      { timeSlot: "07:00", value: 3 },
-      { timeSlot: "08:00", value: 3 },
-      { timeSlot: "09:00", value: 3 },
-      { timeSlot: "10:00", value: 4 },
+      { timeSlot: "06:00", value: 5 },
+      { timeSlot: "07:00", value: 4 },
+      { timeSlot: "08:00", value: 4 },
+      { timeSlot: "09:00", value: 5 },
+      { timeSlot: "10:00", value: 5 },
       { timeSlot: "11:00", value: 4 },
       { timeSlot: "12:00", value: 4 },
-      { timeSlot: "13:00", value: 5 },
+      { timeSlot: "13:00", value: 4 },
       { timeSlot: "14:00", value: 5 },
-      { timeSlot: "15:00", value: 6 },
+      { timeSlot: "15:00", value: 5 },
       { timeSlot: "16:00", value: 6 },
       { timeSlot: "17:00", value: 7 },
-      { timeSlot: "18:00", value: 8 },
-      { timeSlot: "19:00", value: 11 },
+      { timeSlot: "18:00", value: 9 },
+      { timeSlot: "19:00", value: 12 },
       { timeSlot: "20:00", value: 29 },
       { timeSlot: "21:00", value: 31 },
       { timeSlot: "22:00", value: 21 },
@@ -437,15 +516,6 @@ export const audienceChannels = [
     ],
   },
 ];
-
-/** Normalize a series to 0-100 for multi-line comparison */
-function normalizeTo100(arr) {
-  if (!arr?.length) return arr;
-  const min = Math.min(...arr.map((d) => d.value));
-  const max = Math.max(...arr.map((d) => d.value));
-  const range = max - min || 1;
-  return arr.map((d) => ({ ...d, value: Math.round(((d.value - min) / range) * 100) }));
-}
 
 /** Channels that have numeric audience flow (for multi-line chart) */
 export const channelsWithFlow = audienceChannels.filter((c) => c.audienceFlow != null);
@@ -467,7 +537,7 @@ export const audienceFlowMultiLine = (() => {
     const min = Math.min(...vals);
     const max = Math.max(...vals);
     const range = max - min || 1;
-    rows.forEach((r, i) => {
+    rows.forEach((r) => {
       if (r[ch.id] != null) r[ch.id] = Math.round(((r[ch.id] - min) / range) * 100);
     });
   });
@@ -489,7 +559,7 @@ const ageOrder = ["Age 18-24", "Age 25-34", "Age 35-44", "Age 45-54", "Age 55-64
 export const audienceAverageAgeGroups = (() => {
   const sums = ageOrder.map(() => 0);
   audienceChannels.forEach((c) => {
-    c.ageGroups.forEach((a, i) => {
+    c.ageGroups.forEach((a) => {
       const idx = ageOrder.indexOf(a.ageGroup);
       if (idx >= 0) sums[idx] += a.percentage;
     });

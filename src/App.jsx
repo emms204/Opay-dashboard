@@ -27,14 +27,15 @@ import {
   terrestrialChannelsDecJan,
   terrestrialChannelsFeb,
   terrestrialChannelsMar,
+  terrestrialChannelsApr,
   cableChannelsDecJan,
   cableChannelsFeb,
   cableChannelsMar,
+  cableChannelsApr,
   terrestrialProgramsFeb,
   terrestrialProgramsDecJan,
   terrestrialProgramsMar,
-  cnnGender,
-  cnnAgeGroups,
+  terrestrialProgramsApr,
   cnnAudienceFlowByHour,
   audienceChannels,
   audienceFlowMultiLine,
@@ -46,7 +47,7 @@ import { BrandLogos } from './components/BrandLogos';
 import { ChartTooltip } from './components/ChartTooltip';
 import { DrillDownPanel } from './components/DrillDownPanel';
 import { InsightAccordion } from './components/InsightAccordion';
-import { INSIGHTS } from './data/chartInsights';
+import { getPeriodInsight, getStaticInsight } from './data/chartInsights';
 import './App.css';
 
 const COLORS = {
@@ -70,6 +71,36 @@ const VIEWS = [
   { id: 'top-programs', label: 'Top Programs' },
 ];
 
+const PERIOD_OPTIONS = [
+  { id: 'decjan', dataKey: 'decJan', label: 'Dec/Jan 2026', short: 'Dec/Jan' },
+  { id: 'feb', dataKey: 'feb', label: 'February 2026', short: 'Feb' },
+  { id: 'mar', dataKey: 'mar', label: 'March 2026', short: 'Mar' },
+  { id: 'apr', dataKey: 'apr', label: 'April 2026', short: 'Apr' },
+];
+
+const LATEST_PERIOD = PERIOD_OPTIONS[PERIOD_OPTIONS.length - 1];
+
+const terrestrialChannelsByPeriod = {
+  decjan: terrestrialChannelsDecJan,
+  feb: terrestrialChannelsFeb,
+  mar: terrestrialChannelsMar,
+  apr: terrestrialChannelsApr,
+};
+
+const cableChannelsByPeriod = {
+  decjan: cableChannelsDecJan,
+  feb: cableChannelsFeb,
+  mar: cableChannelsMar,
+  apr: cableChannelsApr,
+};
+
+const terrestrialProgramsByPeriod = {
+  decjan: terrestrialProgramsDecJan,
+  feb: terrestrialProgramsFeb,
+  mar: terrestrialProgramsMar,
+  apr: terrestrialProgramsApr,
+};
+
 function formatNum(x) {
   if (x >= 1e6) return (x / 1e6).toFixed(1) + 'M';
   if (x >= 1e3) return (x / 1e3).toFixed(1) + 'K';
@@ -87,17 +118,13 @@ function pctChangeNum(prev, curr) {
 }
 
 /**
- * Classify a three-period trajectory using step1 (p1→p2) and step2 (p2→p3) % changes.
+ * Classify the latest period step against the prior step.
  * Thresholds prevent small fluctuations from being mis-labeled.
- *   Declining    : step2 < -2%
- *   Accelerating : step2 > step1 + 5 (and positive)
- *   Softening    : step2 positive but < step1 - 5
- *   Stable       : within ±5 band of each other
  */
-function classifyTrajectory(step1, step2) {
-  if (step2 < -2) return { label: 'Declining', tone: 'declining' };
-  if (step2 > step1 + 5) return { label: 'Accelerating', tone: 'accelerating' };
-  if (step2 >= 0 && step2 < step1 - 5) return { label: 'Softening', tone: 'softening' };
+function classifyTrajectory(previousStep, latestStep) {
+  if (latestStep < -2) return { label: 'Declining', tone: 'declining' };
+  if (latestStep > previousStep + 5) return { label: 'Accelerating', tone: 'accelerating' };
+  if (latestStep >= 0 && latestStep < previousStep - 5) return { label: 'Softening', tone: 'softening' };
   return { label: 'Stable', tone: 'stable' };
 }
 
@@ -142,20 +169,22 @@ const OVERVIEW_ICONS = {
 
 export default function App() {
   const [view, setView] = useState('reach');
-  const [period, setPeriod] = useState('feb');
+  const [period, setPeriod] = useState(LATEST_PERIOD.id);
   const [drillDown, setDrillDown] = useState(null);
   const [programSortKey, setProgramSortKey] = useState('totalTVR');
   const [programSortAsc, setProgramSortAsc] = useState(false);
   const [selectedAudienceChannel, setSelectedAudienceChannel] = useState('cnn');
   const [progressionNormalized, setProgressionNormalized] = useState(false);
 
-  const c = period === 'decjan' ? cable.decJan : period === 'feb' ? cable.feb : cable.mar;
-  const t = period === 'decjan' ? terrestrial.decJan : period === 'feb' ? terrestrial.feb : terrestrial.mar;
-  const d = period === 'decjan' ? dstv.decJan : period === 'feb' ? dstv.feb : dstv.mar;
-  const g = period === 'decjan' ? gotv.decJan : period === 'feb' ? gotv.feb : gotv.mar;
+  const periodMeta = PERIOD_OPTIONS.find((p) => p.id === period) ?? LATEST_PERIOD;
+  const periodDataKey = periodMeta.dataKey;
+  const c = cable[periodDataKey];
+  const t = terrestrial[periodDataKey];
+  const d = dstv[periodDataKey];
+  const g = gotv[periodDataKey];
 
-  const periodLabel = period === 'decjan' ? 'Dec/Jan 2026' : period === 'feb' ? 'February 2026' : 'March 2026';
-  const periodShort = period === 'decjan' ? 'Dec/Jan' : period === 'feb' ? 'Feb' : 'Mar';
+  const periodLabel = periodMeta.label;
+  const periodShort = periodMeta.short;
 
   const reachCompareData = [
     { name: 'Cable', value: c.householdsReachedM, fill: COLORS.cable, spots: c.spots, frequency: c.avgFrequency, grps: c.grps },
@@ -182,11 +211,11 @@ export default function App() {
   ];
   const cableShareTotal = d.householdsReachedM + g.householdsReachedM;
 
-  const topTerr = (period === 'decjan' ? terrestrialChannelsDecJan : period === 'feb' ? terrestrialChannelsFeb : terrestrialChannelsMar)
+  const topTerr = (terrestrialChannelsByPeriod[period] ?? terrestrialChannelsByPeriod[LATEST_PERIOD.id])
     .slice()
     .sort((a, b) => b.tvr - a.tvr)
     .slice(0, 10);
-  const topCable = (period === 'decjan' ? cableChannelsDecJan : period === 'feb' ? cableChannelsFeb : cableChannelsMar)
+  const topCable = (cableChannelsByPeriod[period] ?? cableChannelsByPeriod[LATEST_PERIOD.id])
     .slice()
     .sort((a, b) => b.tvr - a.tvr)
     .slice(0, 10);
@@ -199,11 +228,11 @@ export default function App() {
   }));
 
   const radialReach = [
-    { name: period === 'decjan' ? 'Terrestrial Dec/Jan' : period === 'feb' ? 'Terrestrial Feb' : 'Terrestrial Mar', value: Math.min(100, (t.householdsReachedM / 40) * 100), fill: COLORS.terrestrial },
-    { name: period === 'decjan' ? 'Cable Dec/Jan' : period === 'feb' ? 'Cable Feb' : 'Cable Mar', value: Math.min(100, (c.householdsReachedM / 40) * 100), fill: COLORS.cable },
+    { name: `Terrestrial ${periodShort}`, value: Math.min(100, (t.householdsReachedM / 40) * 100), fill: COLORS.terrestrial },
+    { name: `Cable ${periodShort}`, value: Math.min(100, (c.householdsReachedM / 40) * 100), fill: COLORS.cable },
   ];
 
-  const terrestrialPrograms = (period === 'decjan' ? terrestrialProgramsDecJan : period === 'feb' ? terrestrialProgramsFeb : terrestrialProgramsMar).slice();
+  const terrestrialPrograms = (terrestrialProgramsByPeriod[period] ?? terrestrialProgramsByPeriod[LATEST_PERIOD.id]).slice();
   terrestrialPrograms.sort((a, b) => {
     const va = a[programSortKey];
     const vb = b[programSortKey];
@@ -214,9 +243,11 @@ export default function App() {
   const tDec = terrestrial.decJan;
   const tFeb = terrestrial.feb;
   const tMar = terrestrial.mar;
+  const tApr = terrestrial.apr;
   const cDec = cable.decJan;
   const cFeb = cable.feb;
   const cMar = cable.mar;
+  const cApr = cable.apr;
 
   const reachTooltipRows = (raw) => [
     { label: 'Households reached', value: raw.value + ' M' },
@@ -267,9 +298,9 @@ export default function App() {
                 onChange={(e) => setPeriod(e.target.value)}
                 className="granularity-select"
               >
-                <option value="decjan">Dec/Jan 2026</option>
-                <option value="feb">February 2026</option>
-                <option value="mar">March 2026</option>
+                {PERIOD_OPTIONS.map((option) => (
+                  <option key={option.id} value={option.id}>{option.label}</option>
+                ))}
               </select>
             </label>
           </div>
@@ -292,8 +323,8 @@ export default function App() {
       {/* Central display */}
       <main className={`view-content ${view === 'top-channels' ? 'view-content--top-channels' : ''}`}>
         {view === 'campaign-overview' && (() => {
-          const terrImpactByChannel = [...terrestrialChannelsMar].sort((a, b) => b.impacts - a.impacts).slice(0, 6).map((r) => ({ name: r.channel, value: r.impacts / 1e6, fill: COLORS.terrestrial }));
-          const cableImpactByChannel = [...cableChannelsMar].sort((a, b) => b.impacts - a.impacts).slice(0, 6).map((r) => ({ name: (r.platform ? r.platform + ' ' : '') + r.channel, value: r.impacts / 1e6, fill: r.platform === 'DStv' ? COLORS.dstv : COLORS.gotv }));
+          const terrImpactByChannel = [...terrestrialChannelsApr].sort((a, b) => b.impacts - a.impacts).slice(0, 6).map((r) => ({ name: r.channel, value: r.impacts / 1e6, fill: COLORS.terrestrial }));
+          const cableImpactByChannel = [...cableChannelsApr].sort((a, b) => b.impacts - a.impacts).slice(0, 6).map((r) => ({ name: (r.platform ? r.platform + ' ' : '') + r.channel, value: r.impacts / 1e6, fill: r.platform === 'DStv' ? COLORS.dstv : COLORS.gotv }));
           const overviewMetric = (iconKey, label, prevNum, currNum, colorClass, format = (v) => String(v)) => {
             const pctStr = pctChange(prevNum, currNum) ?? '0.0';
             const num = pctChangeNum(prevNum, currNum);
@@ -320,25 +351,25 @@ export default function App() {
           };
           return (
             <div className="view-content-stack overview-two-col">
-              <h3 className="chart-title overview-page-title">Campaign overview — Dec/Jan vs March</h3>
+              <h3 className="chart-title overview-page-title">Campaign overview — Dec/Jan vs April</h3>
               <div className="overview-cards">
                 <div className="overview-card overview-card--terrestrial">
                   <div className="overview-card-header">
                     <h4>Terrestrial (Funita)</h4>
                     <div className="overview-hero-kpi">
-                      <span className="overview-hero-value">{tMar.householdsReachedM}</span>
+                      <span className="overview-hero-value">{tApr.householdsReachedM}</span>
                       <span className="overview-hero-unit">M reach</span>
-                      <span className="overview-hero-change positive">↑ {pctChange(tDec.householdsReachedM, tMar.householdsReachedM)}%</span>
+                      <span className="overview-hero-change positive">↑ {pctChange(tDec.householdsReachedM, tApr.householdsReachedM)}%</span>
                     </div>
                   </div>
                   <div className="overview-metrics">
-                    {overviewMetric('reach', 'Total reach (HH M)', tDec.householdsReachedM, tMar.householdsReachedM, 'color-terrestrial', (v) => v + ' M')}
-                    {overviewMetric('spots', 'Total spots', tDec.spots, tMar.spots, 'color-terrestrial')}
-                    {overviewMetric('frequency', 'Avg. frequency', tDec.avgFrequency, tMar.avgFrequency, 'color-terrestrial', (v) => v.toFixed(1))}
-                    {overviewMetric('tvr', 'Total TVR', tDec.totalTVR, tMar.totalTVR, 'color-terrestrial', (v) => v.toFixed(1))}
+                    {overviewMetric('reach', 'Total reach (HH M)', tDec.householdsReachedM, tApr.householdsReachedM, 'color-terrestrial', (v) => v + ' M')}
+                    {overviewMetric('spots', 'Total spots', tDec.spots, tApr.spots, 'color-terrestrial')}
+                    {overviewMetric('frequency', 'Avg. frequency', tDec.avgFrequency, tApr.avgFrequency, 'color-terrestrial', (v) => v.toFixed(1))}
+                    {overviewMetric('tvr', 'Total TVR', tDec.totalTVR, tApr.totalTVR, 'color-terrestrial', (v) => v.toFixed(1))}
                   </div>
                   <div className="overview-mini-chart">
-                    <h5>Reach by channel (Mar)</h5>
+                    <h5>Reach by channel (Apr)</h5>
                     <ResponsiveContainer width="100%" height={140}>
                       <BarChart data={terrImpactByChannel} layout="vertical" margin={{ left: 50, right: 8, top: 4, bottom: 4 }}>
                         <XAxis type="number" tickFormatter={(v) => v + 'M'} />
@@ -353,7 +384,7 @@ export default function App() {
                   <div className="overview-spark">
                     <span className="overview-spark-label">Reach trend</span>
                     <ResponsiveContainer width="100%" height={36}>
-                      <BarChart data={[{ period: 'Dec/Jan', value: tDec.householdsReachedM }, { period: 'Feb', value: tFeb.householdsReachedM }, { period: 'Mar', value: tMar.householdsReachedM }]} margin={{ top: 2, right: 4, bottom: 2, left: 4 }}>
+                      <BarChart data={[{ period: 'Dec/Jan', value: tDec.householdsReachedM }, { period: 'Feb', value: tFeb.householdsReachedM }, { period: 'Mar', value: tMar.householdsReachedM }, { period: 'Apr', value: tApr.householdsReachedM }]} margin={{ top: 2, right: 4, bottom: 2, left: 4 }}>
                         <XAxis dataKey="period" tick={{ fontSize: 10 }} />
                         <YAxis hide domain={[0, 50]} />
                         <Bar dataKey="value" fill={COLORS.terrestrial} radius={[2, 2, 0, 0]} />
@@ -361,25 +392,25 @@ export default function App() {
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
-                  <InsightAccordion>{INSIGHTS.campaignOverviewTerrestrial}</InsightAccordion>
+                  <InsightAccordion>{getStaticInsight('campaignOverviewTerrestrial')}</InsightAccordion>
                 </div>
                 <div className="overview-card overview-card--cable">
                   <div className="overview-card-header">
                     <h4>Cable (DStv + GOtv)</h4>
                     <div className="overview-hero-kpi">
-                      <span className="overview-hero-value">{cMar.householdsReachedM}</span>
+                      <span className="overview-hero-value">{cApr.householdsReachedM}</span>
                       <span className="overview-hero-unit">M reach</span>
-                      <span className="overview-hero-change positive">↑ {pctChange(cDec.householdsReachedM, cMar.householdsReachedM)}%</span>
+                      <span className="overview-hero-change positive">↑ {pctChange(cDec.householdsReachedM, cApr.householdsReachedM)}%</span>
                     </div>
                   </div>
                   <div className="overview-metrics">
-                    {overviewMetric('reach', 'Total reach (HH M)', cDec.householdsReachedM, cMar.householdsReachedM, 'color-cable', (v) => v + ' M')}
-                    {overviewMetric('spots', 'Total spots', cDec.spots, cMar.spots, 'color-cable')}
-                    {overviewMetric('frequency', 'Avg. frequency', cDec.avgFrequency, cMar.avgFrequency, 'color-cable', (v) => v.toFixed(1))}
-                    {overviewMetric('grps', 'GRPs', cDec.grps, cMar.grps, 'color-cable')}
+                    {overviewMetric('reach', 'Total reach (HH M)', cDec.householdsReachedM, cApr.householdsReachedM, 'color-cable', (v) => v + ' M')}
+                    {overviewMetric('spots', 'Total spots', cDec.spots, cApr.spots, 'color-cable')}
+                    {overviewMetric('frequency', 'Avg. frequency', cDec.avgFrequency, cApr.avgFrequency, 'color-cable', (v) => v.toFixed(1))}
+                    {overviewMetric('grps', 'GRPs', cDec.grps, cApr.grps, 'color-cable')}
                   </div>
                   <div className="overview-mini-chart">
-                    <h5>Impacts by channel (Mar)</h5>
+                    <h5>Impacts by channel (Apr)</h5>
                     <ResponsiveContainer width="100%" height={140}>
                       <BarChart data={cableImpactByChannel} layout="vertical" margin={{ left: 50, right: 8, top: 4, bottom: 4 }}>
                         <XAxis type="number" tickFormatter={(v) => v + 'M'} />
@@ -394,7 +425,7 @@ export default function App() {
                   <div className="overview-spark">
                     <span className="overview-spark-label">Reach trend</span>
                     <ResponsiveContainer width="100%" height={36}>
-                      <BarChart data={[{ period: 'Dec/Jan', value: cDec.householdsReachedM }, { period: 'Feb', value: cFeb.householdsReachedM }, { period: 'Mar', value: cMar.householdsReachedM }]} margin={{ top: 2, right: 4, bottom: 2, left: 4 }}>
+                      <BarChart data={[{ period: 'Dec/Jan', value: cDec.householdsReachedM }, { period: 'Feb', value: cFeb.householdsReachedM }, { period: 'Mar', value: cMar.householdsReachedM }, { period: 'Apr', value: cApr.householdsReachedM }]} margin={{ top: 2, right: 4, bottom: 2, left: 4 }}>
                         <XAxis dataKey="period" tick={{ fontSize: 10 }} />
                         <YAxis hide domain={[0, 50]} />
                         <Bar dataKey="value" fill={COLORS.gotv} radius={[2, 2, 0, 0]} />
@@ -402,7 +433,7 @@ export default function App() {
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
-                  <InsightAccordion>{INSIGHTS.campaignOverviewCable}</InsightAccordion>
+                  <InsightAccordion>{getStaticInsight('campaignOverviewCable')}</InsightAccordion>
                 </div>
               </div>
             </div>
@@ -411,7 +442,7 @@ export default function App() {
 
         {view === 'campaign-progression' && (() => {
           const normalized = progressionNormalized;
-          // Dec/Jan covers ~2 months, Feb and Mar are single months.
+          // Dec/Jan covers ~2 months; Feb, Mar, and Apr are single months.
           const norm = (val, periodKey, isRate) => {
             if (!isRate || !normalized) return val;
             if (periodKey === 'decjan') return val / 2;
@@ -433,36 +464,39 @@ export default function App() {
 
           const kpis = [
             { id: 'terr-reach', platform: 'terrestrial', label: 'Terrestrial HH reach', unit: 'M', icon: OVERVIEW_ICONS.reach, isRate: false,
-              decjan: terrestrial.decJan.householdsReachedM, feb: terrestrial.feb.householdsReachedM, mar: terrestrial.mar.householdsReachedM },
+              decjan: terrestrial.decJan.householdsReachedM, feb: terrestrial.feb.householdsReachedM, mar: terrestrial.mar.householdsReachedM, apr: terrestrial.apr.householdsReachedM },
             { id: 'cable-reach', platform: 'cable', label: 'Cable HH reach', unit: 'M', icon: OVERVIEW_ICONS.reach, isRate: false,
-              decjan: cable.decJan.householdsReachedM, feb: cable.feb.householdsReachedM, mar: cable.mar.householdsReachedM },
+              decjan: cable.decJan.householdsReachedM, feb: cable.feb.householdsReachedM, mar: cable.mar.householdsReachedM, apr: cable.apr.householdsReachedM },
             { id: 'terr-spots', platform: 'terrestrial', label: 'Terrestrial spots', unit: '', icon: OVERVIEW_ICONS.spots, isRate: true,
-              decjan: terrestrial.decJan.spots, feb: terrestrial.feb.spots, mar: terrestrial.mar.spots },
+              decjan: terrestrial.decJan.spots, feb: terrestrial.feb.spots, mar: terrestrial.mar.spots, apr: terrestrial.apr.spots },
             { id: 'cable-spots', platform: 'cable', label: 'Cable spots', unit: '', icon: OVERVIEW_ICONS.spots, isRate: true,
-              decjan: cable.decJan.spots, feb: cable.feb.spots, mar: cable.mar.spots },
+              decjan: cable.decJan.spots, feb: cable.feb.spots, mar: cable.mar.spots, apr: cable.apr.spots },
             { id: 'terr-freq', platform: 'terrestrial', label: 'Terrestrial avg. frequency', unit: 'x', icon: OVERVIEW_ICONS.frequency, isRate: false,
-              decjan: terrestrial.decJan.avgFrequency, feb: terrestrial.feb.avgFrequency, mar: terrestrial.mar.avgFrequency },
+              decjan: terrestrial.decJan.avgFrequency, feb: terrestrial.feb.avgFrequency, mar: terrestrial.mar.avgFrequency, apr: terrestrial.apr.avgFrequency },
             { id: 'cable-freq', platform: 'cable', label: 'Cable avg. frequency', unit: 'x', icon: OVERVIEW_ICONS.frequency, isRate: false,
-              decjan: cable.decJan.avgFrequency, feb: cable.feb.avgFrequency, mar: cable.mar.avgFrequency },
+              decjan: cable.decJan.avgFrequency, feb: cable.feb.avgFrequency, mar: cable.mar.avgFrequency, apr: cable.apr.avgFrequency },
             { id: 'terr-tvr', platform: 'terrestrial', label: 'Terrestrial total TVR', unit: '', icon: OVERVIEW_ICONS.tvr, isRate: true,
-              decjan: terrestrial.decJan.totalTVR, feb: terrestrial.feb.totalTVR, mar: terrestrial.mar.totalTVR },
+              decjan: terrestrial.decJan.totalTVR, feb: terrestrial.feb.totalTVR, mar: terrestrial.mar.totalTVR, apr: terrestrial.apr.totalTVR },
             { id: 'cable-grps', platform: 'cable', label: 'Cable GRPs', unit: '', icon: OVERVIEW_ICONS.grps, isRate: true,
-              decjan: cable.decJan.grps, feb: cable.feb.grps, mar: cable.mar.grps },
+              decjan: cable.decJan.grps, feb: cable.feb.grps, mar: cable.mar.grps, apr: cable.apr.grps },
           ];
 
           const buildCard = (k) => {
             const dec = norm(k.decjan, 'decjan', k.isRate);
             const feb = k.feb;
             const mar = k.mar;
+            const apr = k.apr;
             const step1 = pctChangeNum(dec, feb);
             const step2 = pctChangeNum(feb, mar);
-            const net = pctChangeNum(dec, mar);
-            const tag = classifyTrajectory(step1, step2);
+            const step3 = pctChangeNum(mar, apr);
+            const net = pctChangeNum(dec, apr);
+            const tag = classifyTrajectory(step2, step3);
             const color = k.platform === 'terrestrial' ? COLORS.terrestrial : COLORS.cable;
             const data = [
               { period: 'Dec/Jan', value: dec },
               { period: 'Feb', value: feb },
               { period: 'Mar', value: mar },
+              { period: 'Apr', value: apr },
             ];
             return (
               <div key={k.id} className={`progression-card progression-card--${k.platform}`}>
@@ -486,6 +520,11 @@ export default function App() {
                     <span className="progression-value-period">Mar</span>
                     <span className="progression-value-num">{fmtValue(mar, k.unit)}</span>
                   </div>
+                  <span className="progression-sep" aria-hidden="true">→</span>
+                  <div className="progression-value">
+                    <span className="progression-value-period">Apr</span>
+                    <span className="progression-value-num">{fmtValue(apr, k.unit)}</span>
+                  </div>
                 </div>
                 <div className="progression-chart">
                   <ResponsiveContainer width="100%" height={50}>
@@ -505,6 +544,10 @@ export default function App() {
                     <small>Step 2</small>
                     <span className={step2 >= 0 ? 'positive' : 'negative'}>{fmtPct(step2)}</span>
                   </span>
+                  <span className="progression-delta">
+                    <small>Step 3</small>
+                    <span className={step3 >= 0 ? 'positive' : 'negative'}>{fmtPct(step3)}</span>
+                  </span>
                   <span className="progression-delta progression-delta--net">
                     <small>Net</small>
                     <span className={net >= 0 ? 'positive' : 'negative'}>{fmtPct(net)}</span>
@@ -514,10 +557,10 @@ export default function App() {
             );
           };
 
-          const buildChannelSpark = (label, data, color, mar) => {
-            const step1 = pctChangeNum(data[0].tvr, data[1].tvr);
+          const buildChannelSpark = (label, data, color, latest) => {
             const step2 = pctChangeNum(data[1].tvr, data[2].tvr);
-            const tag = classifyTrajectory(step1, step2);
+            const step3 = pctChangeNum(data[2].tvr, data[3].tvr);
+            const tag = classifyTrajectory(step2, step3);
             return (
               <li key={label} className="progression-channel-row">
                 <span className="progression-channel-name">{label}</span>
@@ -528,36 +571,39 @@ export default function App() {
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
-                <span className="progression-channel-mar">{mar.toFixed(0)} TVR</span>
+                <span className="progression-channel-mar">{latest.toFixed(0)} TVR</span>
                 <span className={`progression-tag progression-tag--${tag.tone}`}>{tag.label}</span>
               </li>
             );
           };
 
-          const topTerrTraj = [...terrestrialChannelsMar]
+          const topTerrTraj = [...terrestrialChannelsApr]
             .sort((a, b) => b.tvr - a.tvr)
             .slice(0, 5)
             .map((c) => {
               const dec = terrestrialChannelsDecJan.find((x) => x.channel === c.channel);
               const feb = terrestrialChannelsFeb.find((x) => x.channel === c.channel);
+              const mar = terrestrialChannelsMar.find((x) => x.channel === c.channel);
               const decVal = norm(dec?.tvr ?? 0, 'decjan', true);
               return {
                 channel: c.channel,
                 data: [
                   { period: 'Dec/Jan', tvr: decVal },
                   { period: 'Feb', tvr: feb?.tvr ?? 0 },
-                  { period: 'Mar', tvr: c.tvr },
+                  { period: 'Mar', tvr: mar?.tvr ?? 0 },
+                  { period: 'Apr', tvr: c.tvr },
                 ],
-                mar: c.tvr,
+                latest: c.tvr,
               };
             });
 
-          const topCableTraj = [...cableChannelsMar]
+          const topCableTraj = [...cableChannelsApr]
             .sort((a, b) => b.tvr - a.tvr)
             .slice(0, 5)
             .map((c) => {
               const dec = cableChannelsDecJan.find((x) => x.channel === c.channel && x.platform === c.platform);
               const feb = cableChannelsFeb.find((x) => x.channel === c.channel && x.platform === c.platform);
+              const mar = cableChannelsMar.find((x) => x.channel === c.channel && x.platform === c.platform);
               const decVal = norm(dec?.tvr ?? 0, 'decjan', true);
               return {
                 channel: `${c.platform} ${c.channel}`,
@@ -565,9 +611,10 @@ export default function App() {
                 data: [
                   { period: 'Dec/Jan', tvr: decVal },
                   { period: 'Feb', tvr: feb?.tvr ?? 0 },
-                  { period: 'Mar', tvr: c.tvr },
+                  { period: 'Mar', tvr: mar?.tvr ?? 0 },
+                  { period: 'Apr', tvr: c.tvr },
                 ],
-                mar: c.tvr,
+                latest: c.tvr,
               };
             });
 
@@ -580,6 +627,8 @@ export default function App() {
                   <span className="progression-period-chip">Feb</span>
                   <span className="progression-period-arrow" aria-hidden="true">→</span>
                   <span className="progression-period-chip">Mar</span>
+                  <span className="progression-period-arrow" aria-hidden="true">→</span>
+                  <span className="progression-period-chip">Apr</span>
                 </div>
                 <label className="progression-toggle">
                   <input
@@ -592,8 +641,8 @@ export default function App() {
               </div>
               <p className="progression-subtitle">
                 {normalized
-                  ? 'Rate metrics (spots, TVR, GRPs) are divided by 2 for Dec/Jan to put all three periods on a per-month basis. State metrics (household reach, frequency) are unchanged.'
-                  : 'Raw totals as delivered. Dec/Jan covers ~2 months while Feb and Mar are single months — toggle "Monthly-normalized" for pace-based comparison.'}
+                  ? 'Rate metrics (spots, TVR, GRPs) are divided by 2 for Dec/Jan to put all four periods on a per-month basis. State metrics (household reach, frequency) are unchanged.'
+                  : 'Raw totals as delivered. Dec/Jan covers ~2 months while Feb, Mar, and Apr are single months — toggle "Monthly-normalized" for pace-based comparison.'}
               </p>
 
               <h3 className="chart-title progression-section-heading">KPI progression</h3>
@@ -601,23 +650,23 @@ export default function App() {
                 {kpis.map(buildCard)}
               </div>
 
-              <h3 className="chart-title progression-section-heading">Top channel trajectory — by March TVR</h3>
+              <h3 className="chart-title progression-section-heading">Top channel trajectory — by April TVR</h3>
               <div className="progression-channels">
                 <div className="progression-channel-block">
                   <h4>Terrestrial · top 5</h4>
                   <ul className="progression-channel-list">
-                    {topTerrTraj.map((ch) => buildChannelSpark(ch.channel, ch.data, COLORS.terrestrial, ch.mar))}
+                    {topTerrTraj.map((ch) => buildChannelSpark(ch.channel, ch.data, COLORS.terrestrial, ch.latest))}
                   </ul>
                 </div>
                 <div className="progression-channel-block">
                   <h4>Cable · top 5</h4>
                   <ul className="progression-channel-list">
-                    {topCableTraj.map((ch) => buildChannelSpark(ch.channel, ch.data, ch.platform === 'DStv' ? COLORS.dstv : COLORS.gotv, ch.mar))}
+                    {topCableTraj.map((ch) => buildChannelSpark(ch.channel, ch.data, ch.platform === 'DStv' ? COLORS.dstv : COLORS.gotv, ch.latest))}
                   </ul>
                 </div>
               </div>
 
-              <InsightAccordion>{INSIGHTS.campaignProgression}</InsightAccordion>
+              <InsightAccordion>{getStaticInsight('campaignProgression')}</InsightAccordion>
             </div>
           );
         })()}
@@ -647,7 +696,7 @@ export default function App() {
                   </BarChart>
                 </ResponsiveContainer>
               </div>
-              <InsightAccordion>{INSIGHTS.reachHouseholds}</InsightAccordion>
+              <InsightAccordion>{getPeriodInsight('reachHouseholds', period)}</InsightAccordion>
             </div>
             <div className="chart-small">
               <h3 className="chart-title">Share of reach</h3>
@@ -672,7 +721,7 @@ export default function App() {
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-              <InsightAccordion>{INSIGHTS.reachSharePie}</InsightAccordion>
+              <InsightAccordion>{getPeriodInsight('reachSharePie', period)}</InsightAccordion>
             </div>
             <div className="chart-large chart-full">
               <h3 className="chart-title">Spots &amp; avg. frequency</h3>
@@ -706,7 +755,7 @@ export default function App() {
                   </BarChart>
                 </ResponsiveContainer>
               </div>
-              <InsightAccordion>{INSIGHTS.reachSpotsFreq}</InsightAccordion>
+              <InsightAccordion>{getPeriodInsight('reachSpotsFreq', period)}</InsightAccordion>
             </div>
           </>
         )}
@@ -791,7 +840,7 @@ export default function App() {
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
-              <InsightAccordion>{INSIGHTS.growthHouseholdReach}</InsightAccordion>
+              <InsightAccordion>{getStaticInsight('growthHouseholdReach')}</InsightAccordion>
             </div>
             <div className="chart-small">
               <h3 className="chart-title">Spots over time</h3>
@@ -825,7 +874,7 @@ export default function App() {
                   </LineChart>
                 </ResponsiveContainer>
               </div>
-              <InsightAccordion>{INSIGHTS.growthSpots}</InsightAccordion>
+              <InsightAccordion>{getStaticInsight('growthSpots')}</InsightAccordion>
             </div>
           </div>
         )}
@@ -861,7 +910,7 @@ export default function App() {
                   </BarChart>
                 </ResponsiveContainer>
               </div>
-              <InsightAccordion>{INSIGHTS.dstvGotvBar}</InsightAccordion>
+              <InsightAccordion>{getPeriodInsight('dstvGotvBar', period)}</InsightAccordion>
             </div>
             <div className="chart-small-group">
               <div className="chart-small">
@@ -898,7 +947,7 @@ export default function App() {
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
-                <InsightAccordion>{INSIGHTS.dstvGotvReachShare}</InsightAccordion>
+                <InsightAccordion>{getPeriodInsight('dstvGotvReachShare', period)}</InsightAccordion>
               </div>
               <div className="chart-small">
                 <h3 className="chart-title">Reach comparison</h3>
@@ -911,7 +960,7 @@ export default function App() {
                     </RadialBarChart>
                   </ResponsiveContainer>
                 </div>
-                <InsightAccordion>{INSIGHTS.dstvGotvRadial}</InsightAccordion>
+                <InsightAccordion>{getPeriodInsight('dstvGotvRadial', period)}</InsightAccordion>
               </div>
             </div>
           </>
@@ -939,7 +988,7 @@ export default function App() {
                   </BarChart>
                 </ResponsiveContainer>
               </div>
-              <InsightAccordion>{INSIGHTS.topChannelsTerrestrial}</InsightAccordion>
+              <InsightAccordion>{getPeriodInsight('topChannelsTerrestrial', period)}</InsightAccordion>
             </div>
             <div className="chart-small chart-small--with-legend">
               <h3 className="chart-title">Top 5 Terrestrial (TVR share)</h3>
@@ -968,7 +1017,7 @@ export default function App() {
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-              <InsightAccordion>{INSIGHTS.topChannelsTerrestrialPie}</InsightAccordion>
+              <InsightAccordion>{getPeriodInsight('topChannelsTerrestrialPie', period)}</InsightAccordion>
             </div>
             <div className="chart-large">
               <h3 className="chart-title">Top channels by TVR — Cable (DStv + GOtv)</h3>
@@ -993,7 +1042,7 @@ export default function App() {
                   </BarChart>
                 </ResponsiveContainer>
               </div>
-              <InsightAccordion>{INSIGHTS.topChannelsCable}</InsightAccordion>
+              <InsightAccordion>{getPeriodInsight('topChannelsCable', period)}</InsightAccordion>
             </div>
             <div className="chart-small chart-small--with-legend">
               <h3 className="chart-title">Top 5 Cable (TVR share)</h3>
@@ -1022,7 +1071,7 @@ export default function App() {
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-              <InsightAccordion>{INSIGHTS.topChannelsCablePie}</InsightAccordion>
+              <InsightAccordion>{getPeriodInsight('topChannelsCablePie', period)}</InsightAccordion>
             </div>
           </>
         )}
@@ -1032,7 +1081,7 @@ export default function App() {
           const LINE_COLORS = [COLORS.terrestrial, COLORS.terrestrialAlt, COLORS.orange, COLORS.purple, COLORS.gotv];
           return (
             <div className="view-content-stack audience-demographics-view">
-              <p className="chart-subtitle">Source: Funita — Your Target Customers spend time watching (Feb 2026).</p>
+              <p className="chart-subtitle">Source: Funita — Your Target Customers spend time watching (April 2026).</p>
 
               {/* Audience Overview */}
               <h3 className="chart-title section-heading">Audience overview (average across all channels)</h3>
@@ -1049,7 +1098,7 @@ export default function App() {
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
-                  <InsightAccordion>{INSIGHTS.audienceOverviewGender}</InsightAccordion>
+                  <InsightAccordion>{getPeriodInsight('audienceOverviewGender', period)}</InsightAccordion>
                 </div>
                 <div className="chart-small">
                   <h3 className="chart-title">Average age group distribution</h3>
@@ -1063,7 +1112,7 @@ export default function App() {
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
-                  <InsightAccordion>{INSIGHTS.audienceOverviewAge}</InsightAccordion>
+                  <InsightAccordion>{getPeriodInsight('audienceOverviewAge', period)}</InsightAccordion>
                 </div>
               </div>
               <div className="chart-large">
@@ -1082,7 +1131,7 @@ export default function App() {
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
-                <InsightAccordion>{INSIGHTS.audienceOverviewTime}</InsightAccordion>
+                <InsightAccordion>{getPeriodInsight('audienceOverviewTime', period)}</InsightAccordion>
               </div>
 
               {/* Channel filter + per-channel section */}
@@ -1148,7 +1197,7 @@ export default function App() {
               ) : (
                 <p className="chart-subtitle">No numeric audience flow data for this channel in the report (ROK uses text descriptors).</p>
               )}
-              <InsightAccordion>{INSIGHTS.audienceChannelDetail}</InsightAccordion>
+              <InsightAccordion>{getPeriodInsight('audienceChannelDetail', period)}</InsightAccordion>
             </div>
           );
         })()}
@@ -1183,7 +1232,7 @@ export default function App() {
                   </tbody>
                 </table>
               </div>
-              <InsightAccordion>{INSIGHTS.topProgramsTable}</InsightAccordion>
+              <InsightAccordion>{getPeriodInsight('topProgramsTable', period)}</InsightAccordion>
             </div>
             <div className="chart-large">
               <h3 className="chart-title">Viewership by time slot (CNN Mon–Fri, relative level)</h3>
@@ -1197,7 +1246,7 @@ export default function App() {
                   ))}
                 </div>
               </div>
-              <InsightAccordion>{INSIGHTS.topProgramsHeatmap}</InsightAccordion>
+              <InsightAccordion>{getPeriodInsight('topProgramsHeatmap', period)}</InsightAccordion>
             </div>
           </div>
         )}
@@ -1205,7 +1254,7 @@ export default function App() {
 
       <footer className="site-footer">
         <BrandLogos className="footer-logos" />
-        <p className="footer-credit">Data: Funita x OPAY Campaign Reports (Dec/Jan, Feb & Mar 2026), OPay DMS Post Campaign (Feb & Mar 2026). Opay TVC Report.</p>
+        <p className="footer-credit">Data: Funita x OPAY Campaign Reports (Dec/Jan-Apr 2026), OPay DMS Post Campaign (Feb-Apr 2026). Opay TVC Report.</p>
       </footer>
 
       <DrillDownPanel drillDown={drillDown} onClose={() => setDrillDown(null)} />

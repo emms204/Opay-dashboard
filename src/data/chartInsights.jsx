@@ -1,200 +1,459 @@
 import React from 'react';
+import {
+  terrestrial,
+  cable,
+  dstv,
+  gotv,
+  terrestrialChannelsDecJan,
+  terrestrialChannelsFeb,
+  terrestrialChannelsMar,
+  terrestrialChannelsApr,
+  cableChannelsDecJan,
+  cableChannelsFeb,
+  cableChannelsMar,
+  cableChannelsApr,
+  terrestrialProgramsDecJan,
+  terrestrialProgramsFeb,
+  terrestrialProgramsMar,
+  terrestrialProgramsApr,
+} from './campaignData';
 
-/**
- * Campaign effectiveness insights — Dec/Jan, February, and March progression.
- * Narrative updated to make March the current benchmark.
- */
+const PERIOD_ORDER = ['decjan', 'feb', 'mar', 'apr'];
 
-export const INSIGHTS = {
+const PERIOD_META = {
+  decjan: { label: 'Dec/Jan 2026', short: 'Dec/Jan', note: 'This window covers two months, so volume metrics will look heavier than any single month that follows.' },
+  feb: { label: 'February 2026', short: 'February' },
+  mar: { label: 'March 2026', short: 'March' },
+  apr: { label: 'April 2026', short: 'April' },
+};
+
+const terrChannelsByPeriod = {
+  decjan: terrestrialChannelsDecJan,
+  feb: terrestrialChannelsFeb,
+  mar: terrestrialChannelsMar,
+  apr: terrestrialChannelsApr,
+};
+
+const cableChannelsByPeriod = {
+  decjan: cableChannelsDecJan,
+  feb: cableChannelsFeb,
+  mar: cableChannelsMar,
+  apr: cableChannelsApr,
+};
+
+const terrProgramsByPeriod = {
+  decjan: terrestrialProgramsDecJan,
+  feb: terrestrialProgramsFeb,
+  mar: terrestrialProgramsMar,
+  apr: terrestrialProgramsApr,
+};
+
+function dataKey(periodId) {
+  return periodId === 'decjan' ? 'decJan' : periodId;
+}
+
+function priorPeriod(periodId) {
+  const i = PERIOD_ORDER.indexOf(periodId);
+  return i > 0 ? PERIOD_ORDER[i - 1] : null;
+}
+
+function metrics(periodId) {
+  const key = dataKey(periodId);
+  return {
+    t: terrestrial[key],
+    c: cable[key],
+    d: dstv[key],
+    g: gotv[key],
+    meta: PERIOD_META[periodId],
+    priorId: priorPeriod(periodId),
+  };
+}
+
+function pctDelta(prev, curr) {
+  if (prev == null || prev === 0) return null;
+  const n = ((curr - prev) / prev) * 100;
+  const sign = n >= 0 ? '+' : '';
+  return `${sign}${n.toFixed(1)}%`;
+}
+
+function topChannels(periodId, platform, n = 4) {
+  const list = platform === 'terrestrial' ? terrChannelsByPeriod[periodId] : cableChannelsByPeriod[periodId];
+  return [...list].sort((a, b) => b.tvr - a.tvr).slice(0, n);
+}
+
+function topPrograms(periodId, n = 3) {
+  return [...terrProgramsByPeriod[periodId]].sort((a, b) => b.totalTVR - a.totalTVR).slice(0, n);
+}
+
+function priorSentence(periodId, formatter) {
+  const prior = priorPeriod(periodId);
+  if (!prior) return null;
+  const curr = metrics(periodId);
+  const prev = metrics(prior);
+  const text = formatter(prev, curr, PERIOD_META[prior].short);
+  return text ? <p>{text}</p> : null;
+}
+
+// ——— Period-specific (dropdown pages) ———
+
+const PERIOD_INSIGHTS = {
+  reachHouseholds(period) {
+    const { t, c, meta } = metrics(period);
+    const combined = (t.householdsReachedM + c.householdsReachedM).toFixed(1);
+    const terrShare = Math.round((t.householdsReachedM / (t.householdsReachedM + c.householdsReachedM)) * 100);
+    return (
+      <>
+        <p>
+          In {meta.short}, terrestrial reached about {t.householdsReachedM}M households and cable about {c.householdsReachedM}M —
+          roughly {combined}M combined. Terrestrial is carrying about {terrShare}% of that pool, which is what we want for a broad national trust message.
+        </p>
+        {priorSentence(period, (prev, curr, priorShort) => {
+          const dt = pctDelta(prev.t.householdsReachedM, curr.t.householdsReachedM);
+          const dc = pctDelta(prev.c.householdsReachedM, curr.c.householdsReachedM);
+          return `Compared with ${priorShort}: terrestrial ${dt}, cable ${dc}.`;
+        })}
+        {period === 'decjan' && <p>{PERIOD_META.decjan.note}</p>}
+        {period === 'apr' && (
+          <p>
+            April is our strongest terrestrial reach month so far. Cable eased a touch from March but is still ahead of where we opened the flight — so the pay-TV layer is holding, not slipping away.
+          </p>
+        )}
+      </>
+    );
+  },
+
+  reachSharePie(period) {
+    const { t, c, meta } = metrics(period);
+    const terrShare = Math.round((t.householdsReachedM / (t.householdsReachedM + c.householdsReachedM)) * 100);
+    return (
+      <>
+        <p>
+          The split you are looking at for {meta.short} is roughly {terrShare}% terrestrial and {100 - terrShare}% cable by household reach.
+          That is intentional: FTA gives us scale and repetition; cable gives us depth in subscription homes.
+        </p>
+        <p>
+          Most of our terrestrial spend still sits in premium news and current-affairs environments, with ROS and sponsorship filling the gaps.
+          That mix is what lets us look “national” without giving up credibility.
+        </p>
+      </>
+    );
+  },
+
+  reachSpotsFreq(period) {
+    const { t, c, meta } = metrics(period);
+    return (
+      <>
+        <p>
+          {meta.short}: {t.spots.toLocaleString()} terrestrial spots at {t.avgFrequency.toFixed(1)}× average frequency, and {c.spots.toLocaleString()} cable spots at {c.avgFrequency.toFixed(1)}×.
+          Terrestrial TVR for the month is {t.totalTVR.toLocaleString(undefined, { maximumFractionDigits: 1 })}; cable GRPs are {c.grps.toLocaleString()}.
+        </p>
+        {priorSentence(period, (prev, curr, priorShort) => {
+          if (curr.t.spots < prev.t.spots && curr.t.avgFrequency > prev.t.avgFrequency) {
+            return `Terrestrial ran fewer spots than ${priorShort} but frequency went up — so we are pressing harder per placement, not just buying more airtime.`;
+          }
+          if (curr.c.spots < prev.c.spots && curr.c.householdsReachedM >= prev.c.householdsReachedM * 0.98) {
+            return `Cable trimmed spots versus ${priorShort} while keeping reach in the same ballpark — tighter scheduling, not a pullback from the audience.`;
+          }
+          return `Versus ${priorShort}, terrestrial frequency moved from ${prev.t.avgFrequency.toFixed(1)}× to ${curr.t.avgFrequency.toFixed(1)}×.`;
+        })}
+      </>
+    );
+  },
+
+  dstvGotvBar(period) {
+    const { d, g, meta } = metrics(period);
+    const leader = d.householdsReachedM >= g.householdsReachedM ? 'DStv' : 'GOtv';
+    return (
+      <>
+        <p>
+          For {meta.short}, DStv delivered {d.householdsReachedM}M households, {d.totalTVR.toFixed(1)} TVR, and {d.avgFrequency.toFixed(1)}× frequency.
+          GOtv delivered {g.householdsReachedM}M households, {g.totalTVR.toFixed(1)} TVR, and {g.avgFrequency.toFixed(1)}×.
+        </p>
+        <p>
+          {leader} leads on reach this month. DStv tends to win on TVR and frequency when we need depth; GOtv helps us stay present in more homes at a lighter cost per touch.
+          We use both on purpose — they are not interchangeable.
+        </p>
+        {priorSentence(period, (prev, curr, priorShort) => {
+          const dReach = pctDelta(prev.d.householdsReachedM, curr.d.householdsReachedM);
+          const gReach = pctDelta(prev.g.householdsReachedM, curr.g.householdsReachedM);
+          return `Reach vs ${priorShort}: DStv ${dReach}, GOtv ${gReach}.`;
+        })}
+      </>
+    );
+  },
+
+  dstvGotvReachShare(period) {
+    const { d, g, meta } = metrics(period);
+    const total = d.householdsReachedM + g.householdsReachedM;
+    const dstvPct = Math.round((d.householdsReachedM / total) * 100);
+    return (
+      <>
+        <p>
+          In {meta.short}, DStv accounts for about {dstvPct}% of cable household reach and GOtv about {100 - dstvPct}%.
+          When that line shifts month to month, it is usually inventory and football/drama weighting — not audience fatigue.
+        </p>
+        {period === 'apr' && (
+          <p>GOtv edges ahead on reach in April while DStv still carries the heavier TVR load. That is a useful balance: breadth plus depth in the same month.</p>
+        )}
+      </>
+    );
+  },
+
+  dstvGotvRadial(period) {
+    const { t, c, meta } = metrics(period);
+    return (
+      <>
+        <p>
+          This view scales reach against a 40M reference line for {meta.short}. Terrestrial is at {t.householdsReachedM}M — above that benchmark — and cable is at {c.householdsReachedM}M.
+        </p>
+        <p>
+          Read the overshoot as maturity on FTA, not as “we have run out of room.” From here, gains are more about how often people see us and in what context, not simply adding another million on the chart.
+        </p>
+      </>
+    );
+  },
+
+  topChannelsTerrestrial(period) {
+    const top = topChannels(period, 'terrestrial', 4);
+    const { meta } = metrics(period);
+    return (
+      <>
+        <p>
+          {meta.short} is led by {top.map((ch, i) => `${ch.channel} (${ch.tvr.toFixed(0)} TVR)`).join(', ')}.
+          NTA and the news tier are doing the heavy lifting; entertainment and sports are stretching us into other dayparts.
+        </p>
+        {priorSentence(period, (prev, curr, priorShort) => {
+          const lead = topChannels(period, 'terrestrial', 1)[0];
+          const prevLead = topChannels(priorPeriod(period), 'terrestrial', 1)[0];
+          if (lead.channel === prevLead.channel) {
+            return `${lead.channel} was also our top terrestrial channel in ${priorShort}; TVR moved from ${prevLead.tvr.toFixed(0)} to ${lead.tvr.toFixed(0)}.`;
+          }
+          return `Top channel shifted from ${prevLead.channel} in ${priorShort} to ${lead.channel} now.`;
+        })}
+      </>
+    );
+  },
+
+  topChannelsTerrestrialPie(period) {
+    const top = topChannels(period, 'terrestrial', 5);
+    const { meta } = metrics(period);
+    const names = top.map((c) => c.channel).join(', ');
+    return (
+      <>
+        <p>
+          The top five TVR share in {meta.short} clusters around {names}. That concentration is healthy: we are not spreading budget across too many middling channels.
+        </p>
+        <p>Protect those news and current-affairs slots first; use ROS and sponsorship on ROK, SuperSport, and Arewa when we need extra cover without paying full network premiums.</p>
+      </>
+    );
+  },
+
+  topChannelsCable(period) {
+    const top = topChannels(period, 'cable', 4);
+    const { meta } = metrics(period);
+    return (
+      <>
+        <p>
+          Cable in {meta.short} is still a story about Africa Magic and sport: {top.map((ch) => `${ch.platform} ${ch.channel} (${ch.tvr.toFixed(0)} TVR)`).join('; ')}.
+        </p>
+        <p>That is the right neighbourhood for OPay — high-attention drama and football, repeated often enough to stick without feeling like wallpaper.</p>
+      </>
+    );
+  },
+
+  topChannelsCablePie(period) {
+    const top = topChannels(period, 'cable', 5);
+    const { meta } = metrics(period);
+    return (
+      <>
+        <p>
+          In {meta.short}, most of our cable TVR weight still sits in a handful of channels — mainly Africa Magic across DStv and GOtv, with football adding spikes when it is on the schedule.
+        </p>
+        <p>If we need to trim GRPs in a softer month, this is where we can do it surgically without losing the whole pay-TV presence.</p>
+      </>
+    );
+  },
+
+  audienceOverviewGender(period) {
+    const { t, c, meta } = metrics(period);
+    return (
+      <>
+        <p>
+          Demographics here are structural (they do not flip when you change the month), but delivery intensity does.
+          In {meta.short} we had {t.spots.toLocaleString()} terrestrial and {c.spots.toLocaleString()} cable spots in market — so both male-leaning sport/news and female-leaning drama environments got real pressure.
+        </p>
+        <p>That matters for Payment Shield: men often initiate the download; women often gate trust in the household. We need both.</p>
+      </>
+    );
+  },
+
+  audienceOverviewAge(period) {
+    const { t, meta } = metrics(period);
+    return (
+      <>
+        <p>
+          The sweet spot is still 25–44: CNN, Channels, Trace, ROK, and sport keep us in front of people who actually use mobile money daily.
+          In {meta.short}, terrestrial frequency at {t.avgFrequency.toFixed(1)}× means we are past “they have heard of us” and into “they can recall the claim.”
+        </p>
+        <p>Older viewers come through NTA and evening news; younger ones through Trace and SuperSport. We are not over-indexed on one age band.</p>
+      </>
+    );
+  },
+
+  audienceOverviewTime(period) {
+    const { t, meta } = metrics(period);
+    return (
+      <>
+        <p>
+          Daypart logic for {meta.short} is unchanged in shape: mornings for credibility (Arise, CNN), midday for mass and youth, primetime for family, late night for low-distraction news.
+          With {t.spots.toLocaleString()} terrestrial spots on air, we are covering all four blocks — not just buying the cheapest ROS.
+        </p>
+        <p>CNN still peaks in the 21:00–23:00 window. That is where we get the most attentive processing of a trust message, so we should keep defending it in the plan.</p>
+      </>
+    );
+  },
+
+  audienceChannelDetail(period) {
+    const { meta } = metrics(period);
+    return (
+      <>
+        <p>
+          Use this drill-down for {meta.short} to sanity-check fit: news channels should skew slightly older and more male; drama and ROK skew female; sport skews male and younger.
+        </p>
+        <p>If a channel’s curve looks flat while its TVR is high, we are probably reaching people often but not at the moments they are most attentive — worth a scheduling conversation, not a budget cut.</p>
+      </>
+    );
+  },
+
+  topProgramsTable(period) {
+    const top = topPrograms(period, 3);
+    const { meta } = metrics(period);
+    return (
+      <>
+        <p>
+          Program view for {meta.short} — the standouts by TVR: {top.map((p) => `${p.channel} (${p.totalTVR.toFixed(0)} TVR)`).join('; ')}.
+        </p>
+        <p>
+          Arise Morning Show, NTA news belts, and CNN tactical still anchor credibility. ROS on Arewa and tactical sport blocks give us efficient reach between those premium anchors.
+        </p>
+        {priorSentence(period, (prev, curr, priorShort) => {
+          const now = topPrograms(period, 1)[0];
+          const before = topPrograms(priorPeriod(period), 1)[0];
+          return `Top program TVR vs ${priorShort}: ${before.channel} ${before.totalTVR.toFixed(0)} → ${now.channel} ${now.totalTVR.toFixed(0)}.`;
+        })}
+      </>
+    );
+  },
+
+  topProgramsHeatmap(period) {
+    const cnn = terrProgramsByPeriod[period].find((p) => p.channel === 'CNN');
+    const { meta } = metrics(period);
+    return (
+      <>
+        <p>
+          The CNN heatmap for {meta.short} is still telling the same story: late evening is when news viewers are most locked in.
+          {cnn ? ` CNN tactical ran ${cnn.insertions} insertions at ${cnn.totalTVR.toFixed(0)} TVR this month.` : ''}
+        </p>
+        <p>21:00–23:00 is our best trust-conversion real estate on cable news. Daytime CNN adds frequency; late night adds belief.</p>
+        {period !== 'decjan' && priorSentence(period, (prev, curr, priorShort) => {
+          const prevCnn = terrProgramsByPeriod[priorPeriod(period)].find((p) => p.channel === 'CNN');
+          const currCnn = terrProgramsByPeriod[period].find((p) => p.channel === 'CNN');
+          if (prevCnn && currCnn) {
+            return `CNN TVR moved ${prevCnn.totalTVR.toFixed(0)} (${priorShort}) → ${currCnn.totalTVR.toFixed(0)} (${meta.short}).`;
+          }
+          return null;
+        })}
+      </>
+    );
+  },
+};
+
+// ——— Static (multi-period pages, no dropdown) ———
+
+const STATIC_INSIGHTS = {
   campaignOverviewTerrestrial: (
     <>
-      <p><strong>March confirms sustained campaign acceleration, not a one-off February spike.</strong> Terrestrial household reach moved 29.6M (Dec/Jan) → 41.0M (Feb) → 45.0M (Mar), while TVR moved 2,175.4 → 3,487.3 → 4,133.7. The campaign kept growing after the initial lift, which is the strongest signal that the media architecture is working.</p>
-      <p><strong>Delivery quality also improved in March:</strong> spots increased to 1,110 and average frequency reached 20.1x. This means the message is now both broad and repeated at scale. For a trust proposition like Payment Shield, this level of repeated exposure is exactly what moves audiences from awareness to belief.</p>
-      <p><strong>Added value through platform relationships:</strong> For DTH and DTT specifically, commercial feeds were uploaded through different technical distribution systems. Through negotiated platform relationships, OPay secured a strategic combination of both systems, delivering enhanced commercial exposure and added value beyond the standard media buy. This is incremental reach that was earned, not bought.</p>
-      <p><strong>Strategic implication:</strong> Dec/Jan built the base, February proved the model, and March scaled it further. The terrestrial buy is now operating as a national trust engine with stronger penetration into both mainstream and premium news environments.</p>
+      <p>
+        Terrestrial is the engine of this flight. We opened at 29.6M households (Dec/Jan), pushed to 41M in February, 45M in March, and 47M in April.
+        TVR followed the same staircase: about 2,175 → 3,487 → 4,134 → 4,753.
+      </p>
+      <p>
+        April is especially interesting: spots dipped to 1,006 while frequency rose to 23.1×. We are getting more repetition without simply buying more airtime — that is better planning, not less effort.
+      </p>
+      <p>
+        A lot of this delivery rides on simulcast and on the DTH/DTT feed work we negotiated — exposure we would not have got from a standard buy alone.
+        Roughly two-thirds of spend still sits in premium news and current affairs; the rest is ROS and sponsorship for cover and efficiency.
+      </p>
     </>
   ),
 
   campaignOverviewCable: (
     <>
-      <p><strong>Cable stayed resilient through March and remains the precision layer.</strong> Households reached moved 20.1M (Dec/Jan) → 21.2M (Feb) → 22.1M (Mar), with frequency 7.0x → 9.9x → 10.7x and GRPs 2,595 → 2,739 → 2,668.</p>
-      <p><strong>March read:</strong> slightly lower GRPs than February but higher reach and higher frequency is a strong efficiency outcome, not a decline. It means delivery became tighter around audiences that matter for fintech adoption while still expanding net household coverage.</p>
-      <p><strong>Role in the full mix:</strong> terrestrial drives national scale; cable compounds persuasion among subscription audiences and high-intent viewers. The March data shows the integrated model continues to create both breadth and depth.</p>
-    </>
-  ),
-
-  reachHouseholds: (
-    <>
-      <p><strong>The three-point trend is clear:</strong> Dec/Jan → Feb → Mar shows continuous growth on both platforms, with terrestrial 29.6M → 41.0M → 45.0M and cable 20.1M → 21.2M → 22.1M.</p>
-      <p><strong>Effectiveness signal:</strong> February was the breakout period; March converted that breakout into sustained scale. The campaign did not revert after a high-intensity month, which indicates the deployment model is repeatable.</p>
-      <p><strong>Combined March reach:</strong> ~67.1M household contacts across terrestrial and cable touchpoints. This keeps OPay in national-advertiser weight class and strengthens share-of-voice in a competitive fintech category.</p>
-    </>
-  ),
-
-  reachSharePie: (
-    <>
-      <p><strong>The terrestrial-heavy split remains deliberate through March.</strong> Terrestrial continued to carry the larger share as March spots climbed to 1,110 and reach hit 45M, while cable maintained consistent high-quality reinforcement at 22.1M.</p>
-      <p><strong>Campaign balance:</strong> Approximately 67% of total terrestrial TV spend is allocated to premium network channel programming — high-audience-concentration, editorially credible environments like NTA News, Arise Morning Show, Channels Politics Today, and CNN. The remaining 33% goes to run-of-station inventory and sponsorship placements (ROK, ROK2 Tactical Sponsorship; SuperSport Tactical Association; Arewa TV ROS) to ensure broader market coverage at optimal cost efficiency. This 67/33 premium-to-ROS split is what gives the campaign both credibility and scale.</p>
-    </>
-  ),
-
-  reachSpotsFreq: (
-    <>
-      <p><strong>March makes the frequency story explicit.</strong> Terrestrial frequency reached 20.1x and cable reached 10.7x, both above Dec/Jan and February levels.</p>
-      <p><strong>Terrestrial progression:</strong> 514 → 1,020 → 1,110 spots and 9.2x → 13.1x → 20.1x frequency, with TVR rising 2,175.4 → 3,487.3 → 4,133.7. This is strong proof of accumulated pressure and message reinforcement.</p>
-      <p><strong>Cable progression:</strong> 750 → 871 → 777 spots while frequency still rose 7.0x → 9.9x → 10.7x. That combination suggests better placement quality and improved scheduling efficiency into March.</p>
-      <p><strong>Bottom line:</strong> the campaign has moved from awareness-building into full persuasion intensity by March.</p>
+      <p>
+        Cable’s job is precision, not raw scale. Reach went 20.1M → 21.2M → 22.1M → 21.5M; GRPs are 2,564 in April with 8.8× frequency.
+        April is a lighter month than March on spots and GRPs — that reads as a planned ease-off, not a problem.
+      </p>
+      <p>
+        Terrestrial is doing the loud national work in April; cable keeps OPay in subscription drama and sport where wallet behaviour actually happens.
+        Together they still put us in national-advertiser territory.
+      </p>
     </>
   ),
 
   growthHouseholdReach: (
     <>
-      <p><strong>The growth chart now tells a full quarter narrative:</strong> both lines trend upward through March, with no reversal after February.</p>
-      <p><strong>Terrestrial:</strong> +15.4M households from Dec/Jan to March (29.6M → 45.0M), confirming broad-based penetration across national and regional audiences.</p>
-      <p><strong>Cable:</strong> +2.0M households from Dec/Jan to March (20.1M → 22.1M), showing stable expansion in a tighter pay-TV universe.</p>
-      <p><strong>Strategic read:</strong> March validates the media mix as durable: terrestrial continues expanding scale while cable keeps deepening repeat exposure.</p>
+      <p>
+        The line tells a simple story: terrestrial keeps climbing every period; cable steps up through March and holds most of that gain in April.
+      </p>
+      <p>
+        Terrestrial added about 17.4M households from Dec/Jan to April. Cable added about 1.4M — smaller in absolute terms, but exactly what we need for depth in pay-TV homes.
+      </p>
     </>
   ),
 
   growthSpots: (
     <>
-      <p><strong>Spot deployment is now a three-stage sequence:</strong> launch (Dec/Jan), acceleration (Feb), and scale consolidation (Mar).</p>
-      <p><strong>Terrestrial:</strong> 514 → 1,020 → 1,110 spots shows sustained prioritization of national inventory even after February&apos;s jump.</p>
-      <p><strong>Cable:</strong> 750 → 871 → 777 shows a controlled rebalance in March while still producing higher reach and frequency than Dec/Jan.</p>
-      <p><strong>Execution takeaway:</strong> the team is no longer just adding volume; March indicates smarter allocation with continued outcome growth.</p>
-      <p><strong>Budget logic remains intact:</strong> premium network programming drives credibility and ratings, while ROS/sponsorship inventory preserves cost-efficient market coverage.</p>
-    </>
-  ),
-
-  dstvGotvBar: (
-    <>
-      <p><strong>March sharpens the DStv vs GOtv split.</strong> DStv reached 11.2M HH, 2,051.7 TVR, and 13.8x frequency; GOtv reached 10.9M HH, 1,344.7 TVR, and 6.1x frequency.</p>
-      <p><strong>DStv is the depth engine:</strong> stronger TVR and frequency indicate heavier persuasion among premium audiences.</p>
-      <p><strong>GOtv is the breadth stabilizer:</strong> it maintained large household coverage and strong impacts, keeping mass-market continuity in parallel.</p>
-      <p><strong>March conclusion:</strong> the two-platform cable strategy remains complementary, not redundant.</p>
-    </>
-  ),
-
-  dstvGotvReachShare: (
-    <>
-      <p><strong>The reach-share gap stayed near parity into March.</strong> After the Dec/Jan GOtv lead, February and March both show close platform balance, with DStv slightly ahead in March (11.2M vs 10.9M).</p>
-      <p><strong>Meaning for planning:</strong> OPay is not over-indexed on one cable audience; it is sustaining dual-market coverage across premium and value segments.</p>
-    </>
-  ),
-
-  dstvGotvRadial: (
-    <>
-      <p><strong>On the 40M benchmark scale, March extends the February milestone.</strong> Terrestrial is now above scale-cap (45M), while cable also improved versus Dec/Jan and February.</p>
-      <p><strong>Interpretation:</strong> terrestrial is in mature high-coverage territory; incremental March gains are about maintaining dominance and compounding repetition, not just finding entirely new households.</p>
-    </>
-  ),
-
-  topChannelsTerrestrial: (
-    <>
-      <p><strong>Channel TVR growth from Dec/Jan to March reveals sustained leadership concentration:</strong></p>
-      <ul>
-        <li><strong>NTA Network:</strong> 215.3 → 692.9 → 827.2 TVR. The strongest absolute growth line in the portfolio, confirming NTA as the core national amplification channel.</li>
-        <li><strong>Arise News:</strong> 325.1 → 469.7 → 553.2 TVR. Continuous growth in premium morning/business audiences.</li>
-        <li><strong>CNN:</strong> 184.2 → 375.6 → 443.7 TVR. Tactical association keeps compounding in high-credibility news contexts.</li>
-        <li><strong>Channels TV:</strong> 329.0 → 394.8 → 470.5 TVR. Consistent climb in policy and current-affairs audience segments.</li>
-      </ul>
-      <p><strong>March takeaway:</strong> premium channels continue to justify the 67% spend weighting through consistent TVR expansion.</p>
-    </>
-  ),
-
-  topChannelsTerrestrialPie: (
-    <>
-      <p><strong>By March, top-5 TVR concentration is even more pronounced.</strong> NTA, Arise, CNN, and Channels collectively account for a larger share of terrestrial ratings than in Feb, showing tighter performance concentration in premium environments.</p>
-      <p><strong>Implication:</strong> the premium-led strategy is not only holding; it is strengthening as the campaign matures.</p>
-    </>
-  ),
-
-  topChannelsCable: (
-    <>
-      <p><strong>March cable winners show broader depth across entertainment clusters.</strong> Africa Magic Epic leads on both DStv and GOtv (563.5 and 533.9 TVR), while Yoruba and Family variants remain key delivery pillars.</p>
-      <p><strong>Sports still adds quality attention:</strong> SuperSport EPL/Football continue to bring high-attention live-viewing contexts that strengthen message retention beyond passive entertainment slots.</p>
-      <p><strong>March summary:</strong> cable is delivering both scale and quality, with improved household reach and frequency versus earlier periods.</p>
-    </>
-  ),
-
-  topChannelsCablePie: (
-    <>
-      <p><strong>March reinforces the same structural truth:</strong> Africa Magic remains the center of gravity for cable TVR share, which validates local-content-first planning.</p>
-      <p><strong>Planning implication:</strong> this consistency gives OPay a dependable cable base while terrestrial carries broader national expansion.</p>
-    </>
-  ),
-
-  audienceOverviewGender: (
-    <>
-      <p><strong>The gender architecture remains effective through March.</strong> Male-skewing news/sports and female-skewing entertainment placements continue to split delivery across both primary transaction initiators and household spend managers.</p>
-      <p><strong>March context:</strong> with higher overall frequency and reach, both gender clusters are now seeing the message at stronger repetition levels than Dec/Jan and February.</p>
-    </>
-  ),
-
-  audienceOverviewAge: (
-    <>
-      <p><strong>The age fit remains strong into March.</strong> The 25–44 core stays dominant while younger and older tails are still covered via Trace Naija and premium news channels.</p>
-      <p><strong>What changed by March:</strong> higher campaign intensity means OPay is no longer just touching these cohorts; it is building repeated memory structures across them.</p>
-    </>
-  ),
-
-  audienceOverviewTime: (
-    <>
-      <p><strong>The time-curve logic strengthened further in March.</strong> With 1,110 terrestrial spots and 777 cable spots, OPay maintained near-continuous daily presence across core dayparts:</p>
-      <ul>
-        <li><strong>Morning (06:00–10:00):</strong> Arise + CNN credibility block for professional and policy audiences</li>
-        <li><strong>Midday (12:00–16:00):</strong> Arewa TV ROS, Trace Naija, SuperSport pre-match — mass-market and youth coverage</li>
-        <li><strong>Primetime (19:00–22:00):</strong> NTA, Zee World, ROK, Channels for family and mass co-viewing</li>
-        <li><strong>Late night (22:00–24:00):</strong> CNN (peak 75–85 relative viewership) and Channels TV — the reflective, low-distraction slot where trust messaging is processed most deeply</li>
-      </ul>
-      <p><strong>Campaign effectiveness signal:</strong> Dec/Jan established all-day presence, Feb amplified it, and March sustained it at higher intensity.</p>
-    </>
-  ),
-
-  audienceChannelDetail: (
-    <>
-      <p><strong>Per-channel diagnostics in March confirm audience-context fit is holding.</strong></p>
-      <ul>
-        <li><strong>Gender fit:</strong> female-skewing drama channels and male-skewing sports/news channels continue to deliver balanced audience penetration.</li>
-        <li><strong>Age fit:</strong> CNN/Channels anchor older affluent trust-sensitive audiences; Trace/ROK/SuperSport sustain younger digitally native segments.</li>
-        <li><strong>Daypart fit:</strong> March still aligns high-trust messaging to low-distraction windows (especially late evening news).</li>
-      </ul>
-    </>
-  ),
-
-  topProgramsTable: (
-    <>
-      <p><strong>Program-level March results show continued momentum in the same winning environments.</strong></p>
-      <p><strong>NTA Newsline:</strong> 98.9 → 353.2 → 421.4 TVR. Still one of the strongest efficiency anchors in the schedule.</p>
-      <p><strong>NTA News @ 9pm:</strong> 116.4 → 339.7 → 405.8 TVR with very high delivered reach, reinforcing NTA as the campaign&apos;s national workhorse.</p>
-      <p><strong>Arise Morning Show:</strong> 325.1 → 469.7 → 553.2 TVR and 8.36M March reach, confirming premium business-news relevance.</p>
-      <p><strong>CNN Tactical Association:</strong> 184.2 → 375.6 → 443.7 TVR with 200 March insertions, sustaining high-frequency credibility coverage.</p>
-      <p><strong>Overall:</strong> March program data confirms that top editorial environments continue compounding rather than plateauing.</p>
-    </>
-  ),
-
-  topProgramsHeatmap: (
-    <>
-      <p><strong>The CNN heatmap remains highly relevant in March.</strong> Late-evening windows still represent the strongest concentration of attentive viewers, and March maintained heavy CNN weighting (200 insertions).</p>
-      <p><strong>Progression proof:</strong> CNN TVR climbed 184.2 (Dec/Jan) → 375.6 (Feb) → 443.7 (Mar), showing that the late-news trust context keeps generating incremental value over time.</p>
-      <p><strong>Planning implication:</strong> keep protecting 22:00–24:00 credibility inventory as a core trust-conversion block while using daytime and primetime to widen exposure.</p>
+      <p>
+        Spots show the rhythm of the flight: build in Feb, peak pressure in March, optimise in April on terrestrial (fewer spots, higher frequency and TVR).
+        Cable spots trend down in April while reach stays respectable — we are maintaining presence, not chasing volume for its own sake.
+      </p>
+      <p>
+        Premium inventory still earns the surcharge because it concentrates audience; ROS and sponsorship stop the plan from becoming too expensive to scale nationally.
+      </p>
     </>
   ),
 
   campaignProgression: (
     <>
-      <p><strong>How to read this page.</strong> Three periods, two steps. Dec/Jan → Feb is the <em>scale-up step</em>; Feb → Mar is the <em>sustain step</em>. Together they answer a much harder question than start-vs-end alone: <em>is momentum compounding, stabilising, or fading?</em></p>
-      <p><strong>Top-level read.</strong></p>
-      <ul>
-        <li><strong>Terrestrial reach:</strong> 29.6M → 41.0M → 45.0M — net +52%. Step 2 is smaller than step 1, which is expected as the campaign approaches the national terrestrial ceiling. This is <em>scale maturity</em>, not softening.</li>
-        <li><strong>Cable reach:</strong> 20.1M → 21.2M → 22.1M — net +10%. Steady, deliberate growth inside a subscription universe that cannot expand as quickly as FTA.</li>
-        <li><strong>Frequency:</strong> terrestrial 9.2× → 13.1× → 20.1× and cable 7.0× → 9.9× → 10.7×. Both platforms are <strong>accelerating</strong> on repetition — the single most important signal for a trust-building fintech message.</li>
-        <li><strong>Cable spots vs frequency:</strong> 750 → 871 → 777 spots, yet frequency kept rising. March delivered <em>higher repetition with fewer placements</em> — a clear sign of smarter scheduling and better audience overlap inside premium environments.</li>
-        <li><strong>Terrestrial TVR:</strong> 2,175 → 3,487 → 4,134 — consistent step-up. The premium 67% share of spend continues to earn its premium.</li>
-      </ul>
-      <p><strong>About the toggle.</strong> Raw totals are the default because that is what was actually delivered to market — the executive view. Switching to <em>Monthly-normalized</em> divides Dec/Jan rate metrics (spots, TVR, GRPs) by 2 so all three periods are compared on a per-month basis. Reach and frequency are <em>state</em> metrics, not cumulative, so they never get normalized.</p>
-      <p><strong>About the tags.</strong> <em>Accelerating</em> means the second step is materially stronger than the first (&gt;5pp). <em>Softening</em> means still positive but clearly weaker (&gt;5pp lower). <em>Declining</em> means the second step turned negative. <em>Stable</em> is everything inside that band — the healthiest outcome when already at national scale.</p>
-      <p><strong>Executive takeaway.</strong> Dec/Jan built the base, February proved the model, March validated it as durable. The campaign is moving from a launch posture into a sustain posture — the right regime for a quarter-long flight building long-term mental availability for Payment Shield.</p>
+      <p>
+        This page is the journey, not the headline. Four stops: Dec/Jan → Feb → Mar → Apr. Use raw totals first (what actually went to air); flip monthly-normalized when you want a fair pace read on spots and TVR.
+      </p>
+      <p>
+        Terrestrial reach: 29.6M → 41M → 45M → 47M (+58.8% net). Frequency: 9.2× → 23.1×. April cut spots but grew TVR — quality improved.
+        Cable reach peaked in March; April is a touch softer but still above Dec/Jan. Cable is now a sustain layer; terrestrial is where growth and repetition live.
+      </p>
+      <p>
+        Tags on each card use fixed rules (declining / accelerating / softening / stable) so small wiggles are not over-called.
+        If step three is positive but smaller than step two, that is usually scale maturity on FTA, not campaign fatigue.
+      </p>
     </>
   ),
+};
+
+/** Insights for pages with a period dropdown — content follows the selected month. */
+export function getPeriodInsight(key, periodId) {
+  const builder = PERIOD_INSIGHTS[key];
+  if (!builder) return null;
+  return builder(periodId);
+}
+
+/** Insights for overview, growth, and progression — fixed multi-period narrative. */
+export function getStaticInsight(key) {
+  return STATIC_INSIGHTS[key];
+}
+
+/** @deprecated Use getPeriodInsight / getStaticInsight — kept for gradual migration */
+export const INSIGHTS = {
+  ...STATIC_INSIGHTS,
+  ...Object.fromEntries(Object.keys(PERIOD_INSIGHTS).map((k) => [k, PERIOD_INSIGHTS[k]('apr')])),
 };
