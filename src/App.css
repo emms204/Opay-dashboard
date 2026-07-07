@@ -1054,6 +1054,41 @@
   gap: 0.25rem;
 }
 
+.progression-values--wide {
+  flex-wrap: wrap;
+  gap: 0.35rem 0.15rem;
+}
+
+.progression-values--wide .progression-value {
+  flex: 0 1 calc(16.66% - 0.2rem);
+  min-width: 2.5rem;
+}
+
+.progression-value-num--muted {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.overview-hero-value--muted {
+  color: var(--text-muted);
+}
+
+.overview-cable-last {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0 0 0.75rem;
+}
+
+.overview-single-col .overview-card--full {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.progression-channels--single .progression-channel-block {
+  max-width: 100%;
+}
+
 .progression-value {
   display: flex;
   flex-direction: column;

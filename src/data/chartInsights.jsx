@@ -1,30 +1,29 @@
 import React from 'react';
 import {
   terrestrial,
-  cable,
-  dstv,
-  gotv,
   terrestrialChannelsDecJan,
   terrestrialChannelsFeb,
   terrestrialChannelsMar,
   terrestrialChannelsApr,
-  cableChannelsDecJan,
-  cableChannelsFeb,
-  cableChannelsMar,
-  cableChannelsApr,
+  terrestrialChannelsMay,
+  terrestrialChannelsJun,
   terrestrialProgramsDecJan,
   terrestrialProgramsFeb,
   terrestrialProgramsMar,
   terrestrialProgramsApr,
+  terrestrialProgramsMay,
+  terrestrialProgramsJun,
 } from './campaignData';
 
-const PERIOD_ORDER = ['decjan', 'feb', 'mar', 'apr'];
+const PERIOD_ORDER = ['decjan', 'feb', 'mar', 'apr', 'may', 'jun'];
 
 const PERIOD_META = {
   decjan: { label: 'Dec/Jan 2026', short: 'Dec/Jan', note: 'This window covers two months, so volume metrics will look heavier than any single month that follows.' },
   feb: { label: 'February 2026', short: 'February' },
   mar: { label: 'March 2026', short: 'March' },
   apr: { label: 'April 2026', short: 'April' },
+  may: { label: 'May 2026', short: 'May' },
+  jun: { label: 'June 2026', short: 'June' },
 };
 
 const terrChannelsByPeriod = {
@@ -32,13 +31,8 @@ const terrChannelsByPeriod = {
   feb: terrestrialChannelsFeb,
   mar: terrestrialChannelsMar,
   apr: terrestrialChannelsApr,
-};
-
-const cableChannelsByPeriod = {
-  decjan: cableChannelsDecJan,
-  feb: cableChannelsFeb,
-  mar: cableChannelsMar,
-  apr: cableChannelsApr,
+  may: terrestrialChannelsMay,
+  jun: terrestrialChannelsJun,
 };
 
 const terrProgramsByPeriod = {
@@ -46,6 +40,8 @@ const terrProgramsByPeriod = {
   feb: terrestrialProgramsFeb,
   mar: terrestrialProgramsMar,
   apr: terrestrialProgramsApr,
+  may: terrestrialProgramsMay,
+  jun: terrestrialProgramsJun,
 };
 
 function dataKey(periodId) {
@@ -61,9 +57,6 @@ function metrics(periodId) {
   const key = dataKey(periodId);
   return {
     t: terrestrial[key],
-    c: cable[key],
-    d: dstv[key],
-    g: gotv[key],
     meta: PERIOD_META[periodId],
     priorId: priorPeriod(periodId),
   };
@@ -76,9 +69,8 @@ function pctDelta(prev, curr) {
   return `${sign}${n.toFixed(1)}%`;
 }
 
-function topChannels(periodId, platform, n = 4) {
-  const list = platform === 'terrestrial' ? terrChannelsByPeriod[periodId] : cableChannelsByPeriod[periodId];
-  return [...list].sort((a, b) => b.tvr - a.tvr).slice(0, n);
+function topChannels(periodId, n = 4) {
+  return [...terrChannelsByPeriod[periodId]].sort((a, b) => b.tvr - a.tvr).slice(0, n);
 }
 
 function topPrograms(periodId, n = 3) {
@@ -94,28 +86,29 @@ function priorSentence(periodId, formatter) {
   return text ? <p>{text}</p> : null;
 }
 
-// ——— Period-specific (dropdown pages) ———
-
 const PERIOD_INSIGHTS = {
   reachHouseholds(period) {
-    const { t, c, meta } = metrics(period);
-    const combined = (t.householdsReachedM + c.householdsReachedM).toFixed(1);
-    const terrShare = Math.round((t.householdsReachedM / (t.householdsReachedM + c.householdsReachedM)) * 100);
+    const { t, meta } = metrics(period);
     return (
       <>
         <p>
-          In {meta.short}, terrestrial reached about {t.householdsReachedM}M households and cable about {c.householdsReachedM}M —
-          roughly {combined}M combined. Terrestrial is carrying about {terrShare}% of that pool, which is what we want for a broad national trust message.
+          In {meta.short}, we reached about {t.householdsReachedM}M households at {t.avgFrequency.toFixed(1)}× average frequency
+          on {t.spots.toLocaleString()} spots. Total TVR for the month is {t.totalTVR.toLocaleString(undefined, { maximumFractionDigits: 1 })}.
         </p>
         {priorSentence(period, (prev, curr, priorShort) => {
           const dt = pctDelta(prev.t.householdsReachedM, curr.t.householdsReachedM);
-          const dc = pctDelta(prev.c.householdsReachedM, curr.c.householdsReachedM);
-          return `Compared with ${priorShort}: terrestrial ${dt}, cable ${dc}.`;
+          return `Compared with ${priorShort}: reach ${dt}.`;
         })}
         {period === 'decjan' && <p>{PERIOD_META.decjan.note}</p>}
-        {period === 'apr' && (
+        {period === 'may' && (
           <p>
-            April is our strongest terrestrial reach month so far. Cable eased a touch from March but is still ahead of where we opened the flight — so the pay-TV layer is holding, not slipping away.
+            May is our peak month: 51.8M reach and 5,466 TVR — lifted by election-season news consumption on NTA, Arise, and Channels.
+          </p>
+        )}
+        {period === 'jun' && (
+          <p>
+            June stepped down to 20M reach on 666 spots — a narrower channel set (CNN, Zee, Trace, ROK, SuperSport) as inventory depleted.
+            That is expected, not a reporting error.
           </p>
         )}
       </>
@@ -123,110 +116,56 @@ const PERIOD_INSIGHTS = {
   },
 
   reachSharePie(period) {
-    const { t, c, meta } = metrics(period);
-    const terrShare = Math.round((t.householdsReachedM / (t.householdsReachedM + c.householdsReachedM)) * 100);
+    const top = topChannels(period, 5);
+    const { meta } = metrics(period);
     return (
       <>
         <p>
-          The split you are looking at for {meta.short} is roughly {terrShare}% terrestrial and {100 - terrShare}% cable by household reach.
-          That is intentional: FTA gives us scale and repetition; cable gives us depth in subscription homes.
-        </p>
-        <p>
-          Most of our terrestrial spend still sits in premium news and current-affairs environments, with ROS and sponsorship filling the gaps.
-          That mix is what lets us look “national” without giving up credibility.
+          Reach weight in {meta.short} clusters on {top.map((c) => c.channel).join(', ')}.
+          {period === 'jun'
+            ? ' With news channels off-air, entertainment and sport drivers carry the household impacts.'
+            : ' NTA and the news tier still do the heavy lifting when they are on the plan.'}
         </p>
       </>
     );
   },
 
   reachSpotsFreq(period) {
-    const { t, c, meta } = metrics(period);
+    const { t, meta } = metrics(period);
     return (
       <>
         <p>
-          {meta.short}: {t.spots.toLocaleString()} terrestrial spots at {t.avgFrequency.toFixed(1)}× average frequency, and {c.spots.toLocaleString()} cable spots at {c.avgFrequency.toFixed(1)}×.
-          Terrestrial TVR for the month is {t.totalTVR.toLocaleString(undefined, { maximumFractionDigits: 1 })}; cable GRPs are {c.grps.toLocaleString()}.
+          {meta.short}: {t.spots.toLocaleString()} spots at {t.avgFrequency.toFixed(1)}× average frequency.
+          TVR is {t.totalTVR.toLocaleString(undefined, { maximumFractionDigits: 1 })}.
         </p>
         {priorSentence(period, (prev, curr, priorShort) => {
           if (curr.t.spots < prev.t.spots && curr.t.avgFrequency > prev.t.avgFrequency) {
-            return `Terrestrial ran fewer spots than ${priorShort} but frequency went up — so we are pressing harder per placement, not just buying more airtime.`;
+            return `Fewer spots than ${priorShort} but higher frequency — pressing harder per placement.`;
           }
-          if (curr.c.spots < prev.c.spots && curr.c.householdsReachedM >= prev.c.householdsReachedM * 0.98) {
-            return `Cable trimmed spots versus ${priorShort} while keeping reach in the same ballpark — tighter scheduling, not a pullback from the audience.`;
-          }
-          return `Versus ${priorShort}, terrestrial frequency moved from ${prev.t.avgFrequency.toFixed(1)}× to ${curr.t.avgFrequency.toFixed(1)}×.`;
+          const dt = pctDelta(prev.t.spots, curr.t.spots);
+          const df = pctDelta(prev.t.avgFrequency, curr.t.avgFrequency);
+          return `Versus ${priorShort}: spots ${dt}, frequency ${df}.`;
         })}
-      </>
-    );
-  },
-
-  dstvGotvBar(period) {
-    const { d, g, meta } = metrics(period);
-    const leader = d.householdsReachedM >= g.householdsReachedM ? 'DStv' : 'GOtv';
-    return (
-      <>
-        <p>
-          For {meta.short}, DStv delivered {d.householdsReachedM}M households, {d.totalTVR.toFixed(1)} TVR, and {d.avgFrequency.toFixed(1)}× frequency.
-          GOtv delivered {g.householdsReachedM}M households, {g.totalTVR.toFixed(1)} TVR, and {g.avgFrequency.toFixed(1)}×.
-        </p>
-        <p>
-          {leader} leads on reach this month. DStv tends to win on TVR and frequency when we need depth; GOtv helps us stay present in more homes at a lighter cost per touch.
-          We use both on purpose — they are not interchangeable.
-        </p>
-        {priorSentence(period, (prev, curr, priorShort) => {
-          const dReach = pctDelta(prev.d.householdsReachedM, curr.d.householdsReachedM);
-          const gReach = pctDelta(prev.g.householdsReachedM, curr.g.householdsReachedM);
-          return `Reach vs ${priorShort}: DStv ${dReach}, GOtv ${gReach}.`;
-        })}
-      </>
-    );
-  },
-
-  dstvGotvReachShare(period) {
-    const { d, g, meta } = metrics(period);
-    const total = d.householdsReachedM + g.householdsReachedM;
-    const dstvPct = Math.round((d.householdsReachedM / total) * 100);
-    return (
-      <>
-        <p>
-          In {meta.short}, DStv accounts for about {dstvPct}% of cable household reach and GOtv about {100 - dstvPct}%.
-          When that line shifts month to month, it is usually inventory and football/drama weighting — not audience fatigue.
-        </p>
-        {period === 'apr' && (
-          <p>GOtv edges ahead on reach in April while DStv still carries the heavier TVR load. That is a useful balance: breadth plus depth in the same month.</p>
-        )}
-      </>
-    );
-  },
-
-  dstvGotvRadial(period) {
-    const { t, c, meta } = metrics(period);
-    return (
-      <>
-        <p>
-          This view scales reach against a 40M reference line for {meta.short}. Terrestrial is at {t.householdsReachedM}M — above that benchmark — and cable is at {c.householdsReachedM}M.
-        </p>
-        <p>
-          Read the overshoot as maturity on FTA, not as “we have run out of room.” From here, gains are more about how often people see us and in what context, not simply adding another million on the chart.
-        </p>
       </>
     );
   },
 
   topChannelsTerrestrial(period) {
-    const top = topChannels(period, 'terrestrial', 4);
+    const top = topChannels(period, 4);
     const { meta } = metrics(period);
     return (
       <>
         <p>
-          {meta.short} is led by {top.map((ch, i) => `${ch.channel} (${ch.tvr.toFixed(0)} TVR)`).join(', ')}.
-          NTA and the news tier are doing the heavy lifting; entertainment and sports are stretching us into other dayparts.
+          {meta.short} is led by {top.map((ch) => `${ch.channel} (${ch.tvr.toFixed(0)} TVR)`).join(', ')}.
+          {period === 'jun'
+            ? ' CNN and SuperSport Blitz (World Cup) are doing the heavy TVR work alongside Zee, Trace, and ROK.'
+            : ' News and current-affairs channels anchor credibility; entertainment and sport stretch us into other dayparts.'}
         </p>
         {priorSentence(period, (prev, curr, priorShort) => {
-          const lead = topChannels(period, 'terrestrial', 1)[0];
-          const prevLead = topChannels(priorPeriod(period), 'terrestrial', 1)[0];
+          const lead = topChannels(period, 1)[0];
+          const prevLead = topChannels(priorPeriod(period), 1)[0];
           if (lead.channel === prevLead.channel) {
-            return `${lead.channel} was also our top terrestrial channel in ${priorShort}; TVR moved from ${prevLead.tvr.toFixed(0)} to ${lead.tvr.toFixed(0)}.`;
+            return `${lead.channel} was also top in ${priorShort}; TVR moved from ${prevLead.tvr.toFixed(0)} to ${lead.tvr.toFixed(0)}.`;
           }
           return `Top channel shifted from ${prevLead.channel} in ${priorShort} to ${lead.channel} now.`;
         })}
@@ -235,54 +174,32 @@ const PERIOD_INSIGHTS = {
   },
 
   topChannelsTerrestrialPie(period) {
-    const top = topChannels(period, 'terrestrial', 5);
-    const { meta } = metrics(period);
-    const names = top.map((c) => c.channel).join(', ');
-    return (
-      <>
-        <p>
-          The top five TVR share in {meta.short} clusters around {names}. That concentration is healthy: we are not spreading budget across too many middling channels.
-        </p>
-        <p>Protect those news and current-affairs slots first; use ROS and sponsorship on ROK, SuperSport, and Arewa when we need extra cover without paying full network premiums.</p>
-      </>
-    );
-  },
-
-  topChannelsCable(period) {
-    const top = topChannels(period, 'cable', 4);
+    const top = topChannels(period, 5);
     const { meta } = metrics(period);
     return (
       <>
         <p>
-          Cable in {meta.short} is still a story about Africa Magic and sport: {top.map((ch) => `${ch.platform} ${ch.channel} (${ch.tvr.toFixed(0)} TVR)`).join('; ')}.
+          The top five TVR share in {meta.short} clusters around {top.map((c) => c.channel).join(', ')}.
+          {period === 'jun'
+            ? ' A focused roster by design — the channels that still move TVR when premium news inventory is gone.'
+            : ' Healthy concentration: budget is not spread across too many middling channels.'}
         </p>
-        <p>That is the right neighbourhood for OPay — high-attention drama and football, repeated often enough to stick without feeling like wallpaper.</p>
-      </>
-    );
-  },
-
-  topChannelsCablePie(period) {
-    const top = topChannels(period, 'cable', 5);
-    const { meta } = metrics(period);
-    return (
-      <>
-        <p>
-          In {meta.short}, most of our cable TVR weight still sits in a handful of channels — mainly Africa Magic across DStv and GOtv, with football adding spikes when it is on the schedule.
-        </p>
-        <p>If we need to trim GRPs in a softer month, this is where we can do it surgically without losing the whole pay-TV presence.</p>
+        {period !== 'jun' && (
+          <p>Protect news and current-affairs slots first; use ROS and sponsorship on ROK, SuperSport, and Arewa for efficient cover.</p>
+        )}
       </>
     );
   },
 
   audienceOverviewGender(period) {
-    const { t, c, meta } = metrics(period);
+    const { t, meta } = metrics(period);
     return (
       <>
         <p>
-          Demographics here are structural (they do not flip when you change the month), but delivery intensity does.
-          In {meta.short} we had {t.spots.toLocaleString()} terrestrial and {c.spots.toLocaleString()} cable spots in market — so both male-leaning sport/news and female-leaning drama environments got real pressure.
+          Demographics here are structural, but delivery intensity shifts by month.
+          In {meta.short} we had {t.spots.toLocaleString()} spots in market across news, drama, and sport environments.
         </p>
-        <p>That matters for Payment Shield: men often initiate the download; women often gate trust in the household. We need both.</p>
+        <p>That matters for Payment Shield: men often initiate the download; women often gate trust in the household.</p>
       </>
     );
   },
@@ -292,10 +209,9 @@ const PERIOD_INSIGHTS = {
     return (
       <>
         <p>
-          The sweet spot is still 25–44: CNN, Channels, Trace, ROK, and sport keep us in front of people who actually use mobile money daily.
-          In {meta.short}, terrestrial frequency at {t.avgFrequency.toFixed(1)}× means we are past “they have heard of us” and into “they can recall the claim.”
+          The sweet spot is still 25–44: CNN, Channels, Trace, ROK, and sport keep us in front of mobile-money users.
+          In {meta.short}, frequency at {t.avgFrequency.toFixed(1)}× means we are past awareness and into recall.
         </p>
-        <p>Older viewers come through NTA and evening news; younger ones through Trace and SuperSport. We are not over-indexed on one age band.</p>
       </>
     );
   },
@@ -305,10 +221,10 @@ const PERIOD_INSIGHTS = {
     return (
       <>
         <p>
-          Daypart logic for {meta.short} is unchanged in shape: mornings for credibility (Arise, CNN), midday for mass and youth, primetime for family, late night for low-distraction news.
-          With {t.spots.toLocaleString()} terrestrial spots on air, we are covering all four blocks — not just buying the cheapest ROS.
+          Daypart logic for {meta.short}: mornings for credibility, primetime for family, late night for attentive news processing.
+          With {t.spots.toLocaleString()} spots on air, we cover the blocks that match our remaining inventory.
         </p>
-        <p>CNN still peaks in the 21:00–23:00 window. That is where we get the most attentive processing of a trust message, so we should keep defending it in the plan.</p>
+        <p>CNN still peaks 21:00–23:00 — our best trust-conversion real estate on news.</p>
       </>
     );
   },
@@ -318,9 +234,8 @@ const PERIOD_INSIGHTS = {
     return (
       <>
         <p>
-          Use this drill-down for {meta.short} to sanity-check fit: news channels should skew slightly older and more male; drama and ROK skew female; sport skews male and younger.
+          Use this drill-down for {meta.short}: news channels skew slightly older and more male; drama and ROK skew female; sport skews male and younger.
         </p>
-        <p>If a channel’s curve looks flat while its TVR is high, we are probably reaching people often but not at the moments they are most attentive — worth a scheduling conversation, not a budget cut.</p>
       </>
     );
   },
@@ -331,11 +246,15 @@ const PERIOD_INSIGHTS = {
     return (
       <>
         <p>
-          Program view for {meta.short} — the standouts by TVR: {top.map((p) => `${p.channel} (${p.totalTVR.toFixed(0)} TVR)`).join('; ')}.
+          Program standouts in {meta.short} by TVR: {top.map((p) => `${p.channel} (${p.totalTVR.toFixed(0)} TVR)`).join('; ')}.
         </p>
-        <p>
-          Arise Morning Show, NTA news belts, and CNN tactical still anchor credibility. ROS on Arewa and tactical sport blocks give us efficient reach between those premium anchors.
-        </p>
+        {period === 'jun' ? (
+          <p>
+            June is a slimmed flight: Trace Naija sponsorship is new; CNN tactical and SuperSport Blitz (World Cup) carry news and sport dayparts.
+          </p>
+        ) : (
+          <p>Arise Morning Show, NTA news belts, and CNN tactical anchor credibility; ROS and sport blocks fill the gaps.</p>
+        )}
         {priorSentence(period, (prev, curr, priorShort) => {
           const now = topPrograms(period, 1)[0];
           const before = topPrograms(priorPeriod(period), 1)[0];
@@ -351,15 +270,14 @@ const PERIOD_INSIGHTS = {
     return (
       <>
         <p>
-          The CNN heatmap for {meta.short} is still telling the same story: late evening is when news viewers are most locked in.
-          {cnn ? ` CNN tactical ran ${cnn.insertions} insertions at ${cnn.totalTVR.toFixed(0)} TVR this month.` : ''}
+          CNN peaks late evening when news viewers are most locked in.
+          {cnn ? ` CNN tactical ran ${cnn.insertions} insertions at ${cnn.totalTVR.toFixed(0)} TVR in ${meta.short}.` : ''}
         </p>
-        <p>21:00–23:00 is our best trust-conversion real estate on cable news. Daytime CNN adds frequency; late night adds belief.</p>
         {period !== 'decjan' && priorSentence(period, (prev, curr, priorShort) => {
-          const prevCnn = terrProgramsByPeriod[priorPeriod(period)].find((p) => p.channel === 'CNN');
-          const currCnn = terrProgramsByPeriod[period].find((p) => p.channel === 'CNN');
+          const prevCnn = terrProgramsByPeriod[priorPeriod(period)]?.find((p) => p.channel === 'CNN');
+          const currCnn = terrProgramsByPeriod[period]?.find((p) => p.channel === 'CNN');
           if (prevCnn && currCnn) {
-            return `CNN TVR moved ${prevCnn.totalTVR.toFixed(0)} (${priorShort}) → ${currCnn.totalTVR.toFixed(0)} (${meta.short}).`;
+            return `CNN TVR: ${prevCnn.totalTVR.toFixed(0)} (${priorShort}) → ${currCnn.totalTVR.toFixed(0)} (${meta.short}).`;
           }
           return null;
         })}
@@ -368,34 +286,19 @@ const PERIOD_INSIGHTS = {
   },
 };
 
-// ——— Static (multi-period pages, no dropdown) ———
-
 const STATIC_INSIGHTS = {
   campaignOverviewTerrestrial: (
     <>
       <p>
-        Terrestrial is the engine of this flight. We opened at 29.6M households (Dec/Jan), pushed to 41M in February, 45M in March, and 47M in April.
-        TVR followed the same staircase: about 2,175 → 3,487 → 4,134 → 4,753.
+        We opened at 29.6M households (Dec/Jan), built through 41M (Feb), 45M (Mar), 47M (Apr), peaked at 51.8M in May, then stepped down to 20M in June as spots depleted.
+        TVR: 2,175 → 3,487 → 4,134 → 4,753 → 5,466 → 2,554.
       </p>
       <p>
-        April is especially interesting: spots dipped to 1,006 while frequency rose to 23.1×. We are getting more repetition without simply buying more airtime — that is better planning, not less effort.
+        May was the high-water mark — 985 spots, 26.5× frequency, election-season news lift.
+        June is lighter (666 spots) on CNN, Zee, Trace, ROK, and SuperSport as inventory runs down.
       </p>
       <p>
-        A lot of this delivery rides on simulcast and on the DTH/DTT feed work we negotiated — exposure we would not have got from a standard buy alone.
-        Roughly two-thirds of spend still sits in premium news and current affairs; the rest is ROS and sponsorship for cover and efficiency.
-      </p>
-    </>
-  ),
-
-  campaignOverviewCable: (
-    <>
-      <p>
-        Cable’s job is precision, not raw scale. Reach went 20.1M → 21.2M → 22.1M → 21.5M; GRPs are 2,564 in April with 8.8× frequency.
-        April is a lighter month than March on spots and GRPs — that reads as a planned ease-off, not a problem.
-      </p>
-      <p>
-        Terrestrial is doing the loud national work in April; cable keeps OPay in subscription drama and sport where wallet behaviour actually happens.
-        Together they still put us in national-advertiser territory.
+        Roughly two-thirds of spend sits in premium news and current affairs when that inventory is available; ROS and sponsorship fill the gaps.
       </p>
     </>
   ),
@@ -403,10 +306,10 @@ const STATIC_INSIGHTS = {
   growthHouseholdReach: (
     <>
       <p>
-        The line tells a simple story: terrestrial keeps climbing every period; cable steps up through March and holds most of that gain in April.
+        Reach climbed every month through May (29.6M → 51.8M), then fell in June (20M) as spots and channel mix narrowed.
       </p>
       <p>
-        Terrestrial added about 17.4M households from Dec/Jan to April. Cable added about 1.4M — smaller in absolute terms, but exactly what we need for depth in pay-TV homes.
+        The June step-down is inventory-driven: fewer spots, focus on the channels that still move TVR (CNN, Zee, Trace, ROK, SuperSport).
       </p>
     </>
   ),
@@ -414,11 +317,10 @@ const STATIC_INSIGHTS = {
   growthSpots: (
     <>
       <p>
-        Spots show the rhythm of the flight: build in Feb, peak pressure in March, optimise in April on terrestrial (fewer spots, higher frequency and TVR).
-        Cable spots trend down in April while reach stays respectable — we are maintaining presence, not chasing volume for its own sake.
+        Spots peaked in May (985), then eased to 666 in June. Frequency rose through May (26.5×) before easing in June (19.4×).
       </p>
       <p>
-        Premium inventory still earns the surcharge because it concentrates audience; ROS and sponsorship stop the plan from becoming too expensive to scale nationally.
+        The rhythm: build through spring, peak in May on news lift, then run the remaining entertainment and sport inventory into June.
       </p>
     </>
   ),
@@ -426,34 +328,29 @@ const STATIC_INSIGHTS = {
   campaignProgression: (
     <>
       <p>
-        This page is the journey, not the headline. Four stops: Dec/Jan → Feb → Mar → Apr. Use raw totals first (what actually went to air); flip monthly-normalized when you want a fair pace read on spots and TVR.
+        Six stops: Dec/Jan → Feb → Mar → Apr → May → Jun. Use raw totals first; flip monthly-normalized for a fair pace read on spots and TVR.
       </p>
       <p>
-        Terrestrial reach: 29.6M → 41M → 45M → 47M (+58.8% net). Frequency: 9.2× → 23.1×. April cut spots but grew TVR — quality improved.
-        Cable reach peaked in March; April is a touch softer but still above Dec/Jan. Cable is now a sustain layer; terrestrial is where growth and repetition live.
+        Reach: 29.6M → 41M → 45M → 47M → 51.8M → 20M. May→Jun is a deliberate decline as inventory depletes — not creative fatigue.
       </p>
       <p>
-        Tags on each card use fixed rules (declining / accelerating / softening / stable) so small wiggles are not over-called.
-        If step three is positive but smaller than step two, that is usually scale maturity on FTA, not campaign fatigue.
+        Tags use fixed rules (declining / accelerating / softening / stable). A sharp May→Jun drop is expected once spots run out.
       </p>
     </>
   ),
 };
 
-/** Insights for pages with a period dropdown — content follows the selected month. */
 export function getPeriodInsight(key, periodId) {
   const builder = PERIOD_INSIGHTS[key];
   if (!builder) return null;
   return builder(periodId);
 }
 
-/** Insights for overview, growth, and progression — fixed multi-period narrative. */
 export function getStaticInsight(key) {
   return STATIC_INSIGHTS[key];
 }
 
-/** @deprecated Use getPeriodInsight / getStaticInsight — kept for gradual migration */
 export const INSIGHTS = {
   ...STATIC_INSIGHTS,
-  ...Object.fromEntries(Object.keys(PERIOD_INSIGHTS).map((k) => [k, PERIOD_INSIGHTS[k]('apr')])),
+  ...Object.fromEntries(Object.keys(PERIOD_INSIGHTS).map((k) => [k, PERIOD_INSIGHTS[k]('jun')])),
 };

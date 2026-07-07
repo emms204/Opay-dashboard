@@ -7,27 +7,8 @@ export const terrestrial = {
   feb: { householdsReachedM: 41, spots: 1020, avgFrequency: 13.1, totalTVR: 3487.3 },
   mar: { householdsReachedM: 45, spots: 1110, avgFrequency: 20.1, totalTVR: 4133.7 },
   apr: { householdsReachedM: 47, spots: 1006, avgFrequency: 23.1, totalTVR: 4752.95 },
-};
-
-export const cable = {
-  decJan: { householdsReachedM: 20.1, spots: 750, avgFrequency: 7.0, grps: 2595 },
-  feb: { householdsReachedM: 21.2, spots: 871, avgFrequency: 9.9, grps: 2739 },
-  mar: { householdsReachedM: 22.1, spots: 777, avgFrequency: 10.7, grps: 2668 },
-  apr: { householdsReachedM: 21.5, spots: 692, avgFrequency: 8.8, grps: 2564 },
-};
-
-export const dstv = {
-  decJan: { totalTVR: 1830.2, impacts: 8361264, insertions: 403, avgFrequency: 7.5, householdsReachedM: 8.4 },
-  feb: { totalTVR: 1779.7, impacts: 10744050, insertions: 574, avgFrequency: 11.4, householdsReachedM: 10.7 },
-  mar: { totalTVR: 2051.7, impacts: 11168044, insertions: 489, avgFrequency: 13.8, householdsReachedM: 11.2 },
-  apr: { totalTVR: 1911.8, impacts: 10208321, insertions: 424, avgFrequency: 10.2, householdsReachedM: 10.2 },
-};
-
-export const gotv = {
-  decJan: { totalTVR: 1665.8, impacts: 10347466, insertions: 370, avgFrequency: 6.5, householdsReachedM: 10.4 },
-  feb: { totalTVR: 1080.3, impacts: 10527443, insertions: 297, avgFrequency: 8.4, householdsReachedM: 10.5 },
-  mar: { totalTVR: 1344.7, impacts: 10889916, insertions: 288, avgFrequency: 6.1, householdsReachedM: 10.9 },
-  apr: { totalTVR: 1441.5, impacts: 11323758, insertions: 268, avgFrequency: 7.3, householdsReachedM: 11.3 },
+  may: { householdsReachedM: 51.8, spots: 985, avgFrequency: 26.5, totalTVR: 5465.89 },
+  jun: { householdsReachedM: 20, spots: 666, avgFrequency: 19.4, totalTVR: 2554.1 },
 };
 
 export const terrestrialChannelsDecJan = [
@@ -80,6 +61,35 @@ export const terrestrialChannelsMar = [
   { channel: "SuperSport Tennis", tvr: 93.5, impacts: 110224 },
 ];
 
+export const terrestrialChannelsMay = [
+  { channel: "NTA Network", tvr: 1093.97, impacts: 20799979 },
+  { channel: "Arise News", tvr: 731.61, impacts: 11058883 },
+  { channel: "CNN", tvr: 586.79, impacts: 2597682 },
+  { channel: "Channels TV", tvr: 622.24, impacts: 6334933 },
+  { channel: "AIT Network", tvr: 445.15, impacts: 2640446 },
+  { channel: "TVC", tvr: 332.48, impacts: 2617179 },
+  { channel: "Zee World", tvr: 323.88, impacts: 6896390 },
+  { channel: "ROK2", tvr: 257.23, impacts: 1744251 },
+  { channel: "Arewa TV", tvr: 222.71, impacts: 2062863 },
+  { channel: "ROK", tvr: 213.32, impacts: 1263579 },
+  { channel: "SuperSport Blitz", tvr: 212.66, impacts: 863590 },
+  { channel: "SuperSport Motorsport", tvr: 159.23, impacts: 377933 },
+  { channel: "SuperSport Golf", tvr: 140.98, impacts: 153325 },
+  { channel: "SuperSport Tennis", tvr: 123.65, impacts: 145784 },
+];
+
+export const terrestrialChannelsJun = [
+  { channel: "CNN", tvr: 607.81, impacts: 2987334 },
+  { channel: "SuperSport Blitz", tvr: 344.56, impacts: 1093129 },
+  { channel: "Zee World", tvr: 314.46, impacts: 7930849 },
+  { channel: "Trace Naija", tvr: 282.75, impacts: 4038912 },
+  { channel: "ROK2", tvr: 271.69, impacts: 1805889 },
+  { channel: "ROK", tvr: 245.32, impacts: 1453116 },
+  { channel: "SuperSport Motorsport", tvr: 183.11, impacts: 434623 },
+  { channel: "SuperSport Golf", tvr: 162.13, impacts: 176324 },
+  { channel: "SuperSport Tennis", tvr: 142.27, impacts: 167652 },
+];
+
 export const terrestrialChannelsApr = [
   { channel: "NTA Network", tvr: 951.28, impacts: 18086938 },
   { channel: "Arise News", tvr: 636.18, impacts: 9616420 },
@@ -97,83 +107,14 @@ export const terrestrialChannelsApr = [
   { channel: "SuperSport Tennis", tvr: 107.525, impacts: 126769 },
 ];
 
-export const cableChannelsDecJan = [
-  { platform: "DStv", channel: "Africa Magic Epic", tvr: 476.9, impacts: 2649520 },
-  { platform: "GOtv", channel: "Africa Magic Epic", tvr: 426.0, impacts: 3497796 },
-  { platform: "DStv", channel: "Africa Magic Yoruba", tvr: 316.0, impacts: 1340440 },
-  { platform: "GOtv", channel: "Africa Magic Yoruba", tvr: 207.5, impacts: 3212111 },
-  { platform: "DStv", channel: "Africa Magic Family", tvr: 270.8, impacts: 896883 },
-  { platform: "GOtv", channel: "ROK2", tvr: 238.2, impacts: 556908 },
-  { platform: "DStv", channel: "Africa Magic Hausa", tvr: 137.7, impacts: 341787 },
-  { platform: "GOtv", channel: "Africa Magic Hausa", tvr: 186.0, impacts: 496932 },
-  { platform: "DStv", channel: "Telemundo", tvr: 141.1, impacts: 837262 },
-  { platform: "DStv", channel: "SuperSport EPL Nig.", tvr: 125.7, impacts: 456296 },
-  { platform: "GOtv", channel: "Go Football", tvr: 120.2, impacts: 526958 },
-  { platform: "GOtv", channel: "ROK", tvr: 121.6, impacts: 373569 },
-  { platform: "DStv", channel: "Trace Naija", tvr: 119.1, impacts: 371385 },
-  { platform: "DStv", channel: "Africa Magic Showcase", tvr: 152.8, impacts: 1304747 },
-  { platform: "GOtv", channel: "Telemundo", tvr: 108.3, impacts: 471491 },
-  { platform: "GOtv", channel: "Africa Magic Family", tvr: 258.0, impacts: 1211701 },
-  { platform: "DStv", channel: "MTV Base", tvr: 90.1, impacts: 162914 },
-];
-
-export const cableChannelsFeb = [
-  { platform: "DStv", channel: "Africa Magic Epic", tvr: 417.6, impacts: 2676110 },
-  { platform: "GOtv", channel: "Africa Magic Epic", tvr: 357.5, impacts: 3675352 },
-  { platform: "DStv", channel: "Africa Magic Yoruba", tvr: 320.7, impacts: 2912433 },
-  { platform: "GOtv", channel: "Africa Magic Yoruba", tvr: 160.6, impacts: 3570912 },
-  { platform: "DStv", channel: "Africa Magic Family", tvr: 296.4, impacts: 1080919 },
-  { platform: "GOtv", channel: "SuperSport Football", tvr: 294.7, impacts: 773100 },
-  { platform: "DStv", channel: "Trace Naija", tvr: 183.6, impacts: 601159 },
-  { platform: "DStv", channel: "Telemundo", tvr: 175.4, impacts: 943407 },
-  { platform: "DStv", channel: "Africa Magic Showcase", tvr: 160.1, impacts: 1661240 },
-  { platform: "GOtv", channel: "Africa Magic Family", tvr: 64.7, impacts: 1367127 },
-  { platform: "DStv", channel: "Africa Magic Hausa", tvr: 119.5, impacts: 287366 },
-  { platform: "GOtv", channel: "Africa Magic Hausa", tvr: 102.7, impacts: 531749 },
-  { platform: "DStv", channel: "SuperSport EPL", tvr: 106.4, impacts: 581416 },
-  { platform: "GOtv", channel: "Telemundo", tvr: 100.1, impacts: 609203 },
-];
-
-export const cableChannelsMar = [
-  { platform: "DStv", channel: "Africa Magic Epic", tvr: 563.5, impacts: 3133633 },
-  { platform: "GOtv", channel: "Africa Magic Epic", tvr: 533.9, impacts: 4279818 },
-  { platform: "DStv", channel: "Africa Magic Yoruba", tvr: 349.2, impacts: 2229547 },
-  { platform: "DStv", channel: "Africa Magic Family", tvr: 315.3, impacts: 1295537 },
-  { platform: "GOtv", channel: "SuperSport Football", tvr: 317.8, impacts: 706738 },
-  { platform: "DStv", channel: "Telemundo", tvr: 197.4, impacts: 985100 },
-  { platform: "DStv", channel: "Trace Naija", tvr: 188.4, impacts: 671317 },
-  { platform: "GOtv", channel: "Africa Magic Yoruba", tvr: 180.8, impacts: 3055301 },
-  { platform: "DStv", channel: "Africa Magic Showcase", tvr: 160.3, impacts: 1931417 },
-  { platform: "DStv", channel: "Africa Magic Hausa", tvr: 143.9, impacts: 310832 },
-  { platform: "DStv", channel: "SuperSport EPL", tvr: 133.7, impacts: 610661 },
-  { platform: "GOtv", channel: "Telemundo", tvr: 107.5, impacts: 659148 },
-  { platform: "GOtv", channel: "Africa Magic Hausa", tvr: 103.2, impacts: 545206 },
-  { platform: "GOtv", channel: "Africa Magic Family", tvr: 101.5, impacts: 1643705 },
-];
-
-export const cableChannelsApr = [
-  { platform: "GOtv", channel: "Africa Magic Epic", tvr: 527.8, impacts: 4212475 },
-  { platform: "DStv", channel: "Africa Magic Epic", tvr: 513.7, impacts: 2865811 },
-  { platform: "DStv", channel: "Africa Magic Yoruba", tvr: 315.2, impacts: 2135242 },
-  { platform: "DStv", channel: "Africa Magic Family", tvr: 309.1, impacts: 1132242 },
-  { platform: "GOtv", channel: "SuperSport Football", tvr: 298.2, impacts: 706061 },
-  { platform: "GOtv", channel: "Africa Magic Yoruba", tvr: 255.1, impacts: 3601230 },
-  { platform: "DStv", channel: "Telemundo", tvr: 183.9, impacts: 940159 },
-  { platform: "DStv", channel: "Trace Naija", tvr: 178.8, impacts: 640439 },
-  { platform: "DStv", channel: "Africa Magic Showcase", tvr: 166.8, impacts: 1951563 },
-  { platform: "GOtv", channel: "Africa Magic Family", tvr: 154.2, impacts: 1665662 },
-  { platform: "DStv", channel: "SuperSport EPL", tvr: 131.6, impacts: 542582 },
-  { platform: "DStv", channel: "Africa Magic Hausa", tvr: 112.7, impacts: 282655 },
-  { platform: "GOtv", channel: "Telemundo", tvr: 103.9, impacts: 591748 },
-  { platform: "GOtv", channel: "Africa Magic Hausa", tvr: 102.3, impacts: 546582 },
-];
-
-/** For period-over-period line/area charts */
+/** For period-over-period line/area charts (terrestrial only) */
 export const periodTimeline = [
-  { period: "Dec/Jan", cableHH: 20.1, terrestrialHH: 29.6, cableSpots: 750, terrestrialSpots: 514, cableFreq: 7.0, terrestrialFreq: 9.2 },
-  { period: "Feb", cableHH: 21.2, terrestrialHH: 41, cableSpots: 871, terrestrialSpots: 1020, cableFreq: 9.9, terrestrialFreq: 13.1 },
-  { period: "Mar", cableHH: 22.1, terrestrialHH: 45, cableSpots: 777, terrestrialSpots: 1110, cableFreq: 10.7, terrestrialFreq: 20.1 },
-  { period: "Apr", cableHH: 21.5, terrestrialHH: 47, cableSpots: 692, terrestrialSpots: 1006, cableFreq: 8.8, terrestrialFreq: 23.1 },
+  { period: "Dec/Jan", terrestrialHH: 29.6, terrestrialSpots: 514, terrestrialFreq: 9.2 },
+  { period: "Feb", terrestrialHH: 41, terrestrialSpots: 1020, terrestrialFreq: 13.1 },
+  { period: "Mar", terrestrialHH: 45, terrestrialSpots: 1110, terrestrialFreq: 20.1 },
+  { period: "Apr", terrestrialHH: 47, terrestrialSpots: 1006, terrestrialFreq: 23.1 },
+  { period: "May", terrestrialHH: 51.8, terrestrialSpots: 985, terrestrialFreq: 26.5 },
+  { period: "Jun", terrestrialHH: 20, terrestrialSpots: 666, terrestrialFreq: 19.4 },
 ];
 
 /** Terrestrial campaign performance by program (Funita Campaign Performance Report) */
@@ -238,6 +179,39 @@ export const terrestrialProgramsApr = [
   { channel: "SuperSport Tennis", program: "TACTICAL ASSOCIATION", totalTVR: 107.525, impacts: 126769, insertions: 60, avgFrequency: 7.4 },
   { channel: "SuperSport Motorsport", program: "TACTICAL ASSOCIATION", totalTVR: 138.46, impacts: 328637, insertions: 60, avgFrequency: 7.3 },
   { channel: "SuperSport Golf", program: "TACTICAL ASSOCIATION", totalTVR: 122.59, impacts: 133326, insertions: 40, avgFrequency: 7.0 },
+];
+
+export const terrestrialProgramsMay = [
+  { channel: "Arise News", program: "THE MORNING SHOW (Ayo Mairo - Ese, Rueben & Rufai)", totalTVR: 731.607, impacts: 11058883, insertions: 20, avgFrequency: 9.89 },
+  { channel: "Arewa TV", program: "ROS", totalTVR: 222.709, impacts: 2062863, insertions: 25, avgFrequency: 3.335 },
+  { channel: "AIT Network", program: "KAKAKI", totalTVR: 188.98525, impacts: 1373565, insertions: 20, avgFrequency: 4.945 },
+  { channel: "AIT Network", program: "NEWS @ 8PM", totalTVR: 256.16825, impacts: 1266881, insertions: 20, avgFrequency: 5.405 },
+  { channel: "Channels TV", program: "POLITICS TODAY (Seun Okinbaloye)", totalTVR: 332.741, impacts: 1433895, insertions: 20, avgFrequency: 8.855 },
+  { channel: "Channels TV", program: "NEWS @ 10PM", totalTVR: 289.49525, impacts: 4901038, insertions: 20, avgFrequency: 4.485 },
+  { channel: "NTA Network", program: "NEWS @ 9PM", totalTVR: 536.6705, impacts: 10203672, insertions: 20, avgFrequency: 9.775 },
+  { channel: "NTA Network", program: "NEWSLINE", totalTVR: 557.3015, impacts: 10596307, insertions: 20, avgFrequency: 11.845 },
+  { channel: "TVC", program: "YOUR VIEW", totalTVR: 160.816, impacts: 1418838, insertions: 22, avgFrequency: 5.865 },
+  { channel: "TVC", program: "NEWS @ 10PM", totalTVR: 171.6605, impacts: 1198341, insertions: 26, avgFrequency: 5.635 },
+  { channel: "Zee World", program: "8pm - 9pm Belt", totalTVR: 323.88025, impacts: 6896390, insertions: 124, avgFrequency: 8.28 },
+  { channel: "ROK", program: "TACTICAL SPONSORSHIP", totalTVR: 213.31925, impacts: 1263579, insertions: 118, avgFrequency: 8.51 },
+  { channel: "ROK2", program: "TACTICAL SPONSORSHIP", totalTVR: 257.22625, impacts: 1744251, insertions: 110, avgFrequency: 8.855 },
+  { channel: "CNN", program: "TACTICAL ASSOCIATION", totalTVR: 586.79325, impacts: 2597682, insertions: 200, avgFrequency: 9.085 },
+  { channel: "SuperSport Blitz", program: "TACTICAL ASSOCIATION", totalTVR: 212.658, impacts: 863590, insertions: 60, avgFrequency: 5.98 },
+  { channel: "SuperSport Tennis", program: "TACTICAL ASSOCIATION", totalTVR: 123.65375, impacts: 145784, insertions: 60, avgFrequency: 8.51 },
+  { channel: "SuperSport Motorsport", program: "TACTICAL ASSOCIATION", totalTVR: 159.229, impacts: 377933, insertions: 60, avgFrequency: 8.395 },
+  { channel: "SuperSport Golf", program: "TACTICAL ASSOCIATION", totalTVR: 140.9785, impacts: 153325, insertions: 40, avgFrequency: 8.05 },
+];
+
+export const terrestrialProgramsJun = [
+  { channel: "Zee World", program: "8pm - 9pm Belt", totalTVR: 314.46, impacts: 7930849, insertions: 124, avgFrequency: 9.52 },
+  { channel: "Trace Naija", program: "CATEGORY SPONSORSHIP (HITS NON STOP)", totalTVR: 282.75, impacts: 4038912, insertions: 70, avgFrequency: 15.3 },
+  { channel: "ROK", program: "TACTICAL SPONSORSHIP", totalTVR: 245.32, impacts: 1453116, insertions: 104, avgFrequency: 9.79 },
+  { channel: "ROK2", program: "TACTICAL SPONSORSHIP", totalTVR: 271.69, impacts: 1805889, insertions: 104, avgFrequency: 10.18 },
+  { channel: "CNN", program: "TACTICAL ASSOCIATION", totalTVR: 607.81, impacts: 2987334, insertions: 120, avgFrequency: 10.45 },
+  { channel: "SuperSport Blitz", program: "TACTICAL ASSOCIATION", totalTVR: 344.56, impacts: 1093129, insertions: 30, avgFrequency: 6.88 },
+  { channel: "SuperSport Tennis", program: "TACTICAL ASSOCIATION", totalTVR: 142.27, impacts: 167652, insertions: 39, avgFrequency: 9.79 },
+  { channel: "SuperSport Motorsport", program: "TACTICAL ASSOCIATION", totalTVR: 183.11, impacts: 434623, insertions: 35, avgFrequency: 9.65 },
+  { channel: "SuperSport Golf", program: "TACTICAL ASSOCIATION", totalTVR: 162.13, impacts: 176324, insertions: 40, avgFrequency: 9.26 },
 ];
 
 export const terrestrialProgramsDecJan = [

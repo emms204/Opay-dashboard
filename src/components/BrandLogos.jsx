@@ -4,14 +4,10 @@ import { useState } from 'react';
  * Brand logos. Place images ending with "logo" in public/logos/:
  * - opay-logo.svg (or .png)
  * - funita-logo.svg
- * - dstv-logo.svg
- * - gotv-logo.svg
  */
 const LOGOS = [
   { src: '/logos/opay-logo.svg', alt: 'OPay', name: 'OPay' },
   { src: '/logos/funita-logo.svg', alt: 'Terrestrial', name: 'Terrestrial' },
-  { src: '/logos/dstv-logo.svg', alt: 'DStv', name: 'DStv' },
-  { src: '/logos/gotv-logo.svg', alt: 'GOtv', name: 'GOtv' },
 ];
 
 function LogoImg({ src, alt, name }) {
